@@ -5,14 +5,14 @@ import { getLodgings } from '../../api/lodging';
 import { C, MAX_WIDTH } from '../../styles/tokens';
 
 const quickThemes = [
-  { label: '여행 준비', emoji: '🧳' },
-  { label: '캠핑', emoji: '⛺' },
-  { label: '항공권', emoji: '✈️' },
-  { label: '호텔', emoji: '🏨' },
-  { label: '숙소', emoji: '🏠' },
-  { label: '풀빌라', emoji: '🏖️' },
-  { label: '모텔', emoji: '🏢' },
+  { label: '국내숙소', emoji: '🏨' },
+  { label: '해외숙소', emoji: '✈️' },
+  { label: '패키지 여행', emoji: '🎁' },
+  { label: '항공', emoji: '🛫' },
+  { label: '항공+숙소', emoji: '🛄' },
+  { label: '레저·티켓', emoji: '🎫' },
   { label: '렌터카', emoji: '🚗' },
+  { label: '공간대여', emoji: '🏢' },
 ];
 
 const promoBanners = [
