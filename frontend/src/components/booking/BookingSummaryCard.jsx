@@ -26,9 +26,9 @@ export default function BookingSummaryCard({ lodging, checkIn, checkOut, guests,
           transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
         }
         .tz-book-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 12px 20px rgba(232,72,74,0.32);
-          filter: saturate(1.04);
+          transform: translateY(-2px);
+          box-shadow: 0 16px 32px rgba(227, 28, 95, 0.25);
+          filter: saturate(1.1);
         }
       `}</style>
       {/* 가격 헤더 */}
@@ -92,12 +92,13 @@ export default function BookingSummaryCard({ lodging, checkIn, checkOut, guests,
 
 const s = {
   card: {
-    border: `1px solid ${C.border}`,
-    borderRadius: '16px',
-    padding: '24px',
-    boxShadow: S.card,
+    border: `1px solid ${C.borderLight}`,
+    borderRadius: '24px',
+    padding: '28px',
+    boxShadow: '0 20px 48px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04)',
     position: 'sticky',
     top: '100px',
+    background: '#FFFFFF',
   },
   priceRow: {
     marginBottom: '20px',
@@ -117,10 +118,11 @@ const s = {
   },
   dateSummary: {
     display: 'flex',
-    border: `1px solid ${C.border}`,
-    borderRadius: R.md,
+    border: `1px solid ${C.borderLight}`,
+    borderRadius: '12px',
     overflow: 'hidden',
     marginBottom: '8px',
+    background: '#FAFAFA',
   },
   dateCell: { flex: 1, padding: '10px 12px' },
   dateLabel: { fontSize: '10px', fontWeight: '700', color: C.text, marginBottom: '2px', letterSpacing: '0.05em' },
@@ -130,21 +132,22 @@ const s = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    border: `1px solid ${C.border}`,
-    borderRadius: R.md,
-    padding: '10px 12px',
-    marginBottom: '16px',
+    border: `1px solid ${C.borderLight}`,
+    borderRadius: '12px',
+    padding: '12px 14px',
+    marginBottom: '20px',
+    background: '#FAFAFA',
   },
   bookBtn: {
     width: '100%',
-    padding: '14px',
-    background: `linear-gradient(to right, ${C.primary}, #E31C5F)`,
+    padding: '16px',
+    background: `linear-gradient(135deg, ${C.primary} 0%, #E31C5F 100%)`,
     color: '#fff',
     border: 'none',
-    borderRadius: R.md,
-    fontWeight: '700',
+    borderRadius: '999px',
+    fontWeight: '800',
     fontSize: '16px',
-    marginBottom: '16px',
+    marginBottom: '20px',
     cursor: 'pointer',
   },
   breakdown: {

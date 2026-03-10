@@ -46,7 +46,7 @@ export default function LodgingDetailPage() {
   const today = getTodayText();
 
   useEffect(() => {
-    getLodging(lodgingId).then(res => setLodging(res.data)).catch(() => {});
+    getLodging(lodgingId).then(res => setLodging(res.data)).catch(() => { });
   }, [lodgingId]);
 
   if (!lodging) return (
@@ -132,6 +132,10 @@ export default function LodgingDetailPage() {
             height: 120px !important;
           }
         }
+        .tz-action-btn { transition: all 0.2s ease; }
+        .tz-action-btn:hover { background: #f9f9f9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .tz-lodging-img { transition: transform 0.4s ease; }
+        .tz-gallery-wrap:hover .tz-lodging-img { transform: scale(1.02); }
       `}</style>
       {/* ── 이미지 갤러리 ── */}
       <div style={s.gallery} className="tz-lodging-gallery">
@@ -159,10 +163,10 @@ export default function LodgingDetailPage() {
               <span>{lodging.address}</span>
             </div>
             <div style={s.actionRow}>
-              <button type="button" style={{ ...s.actionBtn, ...(liked ? s.actionBtnActive : null) }} onClick={() => setLiked((prev) => !prev)}>
+              <button type="button" className="tz-action-btn" style={{ ...s.actionBtn, ...(liked ? s.actionBtnActive : null) }} onClick={() => setLiked((prev) => !prev)}>
                 {liked ? '♥ 찜 완료' : '♡ 찜하기'}
               </button>
-              <button type="button" style={s.actionBtn} onClick={handleShare}>
+              <button type="button" className="tz-action-btn" style={s.actionBtn} onClick={handleShare}>
                 {shareDone ? '링크 복사됨' : '공유하기'}
               </button>
             </div>
@@ -257,7 +261,7 @@ export default function LodgingDetailPage() {
               <div style={s.guestField}>
                 <label style={s.fieldLabel}>인원</label>
                 <select value={guests} onChange={e => setGuests(Number(e.target.value))} style={s.guestSelect}>
-                  {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}명</option>)}
+                  {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}명</option>)}
                 </select>
               </div>
             </div>
@@ -282,7 +286,7 @@ const s = {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
     gap: '8px',
-    maxHeight: '480px',
+    maxHeight: '520px',
     overflow: 'hidden',
     background: C.bgGray,
   },
@@ -328,33 +332,36 @@ const s = {
   commentSubmitBtn: {
     border: 'none',
     borderRadius: R.md,
-    background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)',
+    background: `linear-gradient(135deg, ${C.primary} 0%, #E31C5F 100%)`,
     color: '#fff',
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: 800,
-    padding: '10px 12px',
+    padding: '10px 16px',
     cursor: 'pointer',
+    transition: 'transform 0.15s ease',
   },
-  commentList: { display: 'grid', gap: '8px' },
+  commentList: { display: 'grid', gap: '12px' },
   commentCard: {
     border: `1px solid ${C.borderLight}`,
-    borderRadius: R.md,
-    padding: '10px 12px',
+    borderRadius: '16px',
+    padding: '16px 20px',
     background: '#fff',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
   },
   commentAuthor: { margin: '0 0 6px', fontSize: '12px', color: '#6B7280', fontWeight: 700 },
   commentContent: { margin: 0, fontSize: '14px', color: '#374151', lineHeight: 1.5 },
-  mapBox: { borderRadius: R.lg, overflow: 'hidden', border: `1px solid ${C.border}` },
-  mapCoord: { fontSize: '12px', color: C.textSub, margin: '8px 0 0' },
+  mapBox: { borderRadius: '24px', overflow: 'hidden', border: `1px solid ${C.borderLight}`, boxShadow: '0 8px 24px rgba(0,0,0,0.06)' },
+  mapCoord: { fontSize: '12px', color: C.textSub, margin: '12px 0 0' },
   inquiryBtn: {
-    padding: '12px 24px',
-    background: C.bg,
+    padding: '14px 28px',
+    background: 'transparent',
     border: `1px solid ${C.border}`,
-    borderRadius: R.md,
-    fontSize: '14px',
-    fontWeight: '600',
+    borderRadius: '999px',
+    fontSize: '15px',
+    fontWeight: '700',
     color: C.text,
     cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
   sidebar: { width: '380px', flexShrink: 0 },
   inputCard: {

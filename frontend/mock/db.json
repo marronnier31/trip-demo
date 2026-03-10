@@ -225,6 +225,18 @@
       "bookingStatus": "CONFIRMED",
       "userId": 9000,
       "id": 7
+    },
+    {
+      "lodgingId": 4,
+      "lodgingName": "부산 광안리 게스트하우스",
+      "thumbnailUrl": "https://picsum.photos/seed/ldg4/800/600",
+      "checkIn": "2026-03-10",
+      "checkOut": "2026-03-17",
+      "guests": 2,
+      "totalPrice": 420000,
+      "bookingStatus": "CONFIRMED",
+      "userId": 9000,
+      "id": 8
     }
   ],
   "inquiries": [
