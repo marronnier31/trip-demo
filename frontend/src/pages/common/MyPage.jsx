@@ -8,11 +8,6 @@ import { getMyInquiries } from '../../api/inquiry';
 import { updateUser } from '../../api/auth';
 import { C, MAX_WIDTH, R, S } from '../../styles/tokens';
 import { INQUIRY_TYPE_LABELS } from '../../constants/inquiryTypes';
-import Badge from '../../components/common/Badge';
-import { getMyBookings } from '../../api/booking';
-import { getMyInquiries } from '../../api/inquiry';
-import { C, MAX_WIDTH, R, S } from '../../styles/tokens';
-import { INQUIRY_TYPE_LABELS } from '../../constants/inquiryTypes';
 
 const USER_TABS = [
   { key: 'bookings', label: '예약 내역' },
