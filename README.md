@@ -87,6 +87,20 @@ npm run build
 - 데이터 저장/수정/삭제는 json-server 기준으로 동작합니다.
 - 운영 배포 전에는 실제 인증/권한/백엔드 API 정합성 점검이 필요합니다.
 
+## Recent Frontend Updates
+
+- 사용자 혜택 흐름 확장: 등급, 쿠폰함, 포인트함, 출석체크 UI와 mock 동작 추가
+- 프로모션/이벤트 분리: 쿠폰팩 성격의 프로모션과 참여형 이벤트를 별도 페이지로 구성
+- 서비스 확장 화면 추가: 해외숙소, 패키지, 항공, 항공+숙소, 레저, 렌터카, 공간대여 결과형 페이지 구현
+- 찜 기능 프론트 연결: 메인/목록/상세/찜목록 연동 및 localStorage 기반 저장
+- 숙소 상세 고도화: 리뷰 섹션 1차 구현, 별점/이미지 첨부 UI 및 mock 리뷰 등록/삭제 추가
+- 관리자/판매자 화면 정리: 공통 테이블, KPI 카드, 모바일 대응, 로딩/빈 상태 패턴 정리
+- 공통 UX 개선: 헤더/푸터/라우팅/hover 상태/SPA 이동/코드 스플리팅 정리
+- 팀 공유 문서 추가:
+  - `doc/project-structure-spec.md`
+  - `doc/db-schema-reference.md`
+  - `doc/lodging-review-plan.md`
+
 ## Database Table Specifications
 
 ### 1. User (사용자) 테이블 : `users`
