@@ -87,6 +87,11 @@ npm run build
 - 데이터 저장/수정/삭제는 json-server 기준으로 동작합니다.
 - 운영 배포 전에는 실제 인증/권한/백엔드 API 정합성 점검이 필요합니다.
 
+## Presentation & References
+
+- 웹 프레젠테이션: `http://localhost:5173/presentation/index.html`
+- DB 스키마 대시보드: `http://localhost:5173/schema/index.html`
+
 ## Recent Frontend Updates
 
 - 사용자 혜택 흐름 확장: 등급, 쿠폰함, 포인트함, 출석체크 UI와 mock 동작 추가
@@ -96,66 +101,9 @@ npm run build
 - 숙소 상세 고도화: 리뷰 섹션 1차 구현, 별점/이미지 첨부 UI 및 mock 리뷰 등록/삭제 추가
 - 관리자/판매자 화면 정리: 공통 테이블, KPI 카드, 모바일 대응, 로딩/빈 상태 패턴 정리
 - 공통 UX 개선: 헤더/푸터/라우팅/hover 상태/SPA 이동/코드 스플리팅 정리
-- 팀 공유 문서 추가:
+- 문서/참고 페이지 정리:
   - `doc/project-structure-spec.md`
   - `doc/db-schema-reference.md`
   - `doc/lodging-review-plan.md`
-
-## Database Table Specifications
-
-### 1. User (사용자) 테이블 : `users`
-
-| No | 컬럼명 | 데이터 타입 | PK/FK | Null 허용 | 제약조건 / 기타 | 설명 |
-|---|---|---|---|---|---|---|
-| 1 | `user_id` | BIGINT | PK | N | AI (Auto Increment) | 사용자 식별자 |
-| 2 | `email` | VARCHAR(120) | - | N | Unique | 이메일 |
-| 3 | `password` | VARCHAR(255) | - | N | - | 비밀번호 |
-| 4 | `name` | VARCHAR(80) | - | N | - | 이름 |
-| 5 | `role` | VARCHAR(20) | - | N | Enum: ADMIN, SELLER, USER | 권한 역할 |
-| 6 | `phone` | VARCHAR(30) | - | Y | - | 연락처 |
-| 7 | `created_at` | DATETIME | - | N | - | 계정 생성일시 |
-
-### 2. Lodging (숙소) 테이블 : `lodgings`
-
-| No | 컬럼명 | 데이터 타입 | PK/FK | Null 허용 | 제약조건 / 기타 | 설명 |
-|---|---|---|---|---|---|---|
-| 1 | `lodging_id` | BIGINT | PK | N | AI (Auto Increment) | 숙소 식별자 |
-| 2 | `seller_id` | BIGINT | FK | N | - | 판매자(호스트) 회원 번호 |
-| 3 | `name` | VARCHAR(120) | - | N | - | 숙소명 |
-| 4 | `region` | VARCHAR(80) | - | N | - | 지역 |
-| 5 | `address` | VARCHAR(255) | - | N | - | 상세 주소 |
-| 6 | `description`| VARCHAR(2000)| - | N | - | 숙소 설명 |
-| 7 | `price_per_night`| DECIMAL(12,2)| - | N | - | 1박당 숙박 가격 |
-| 8 | `thumbnail_url`| VARCHAR(500) | - | Y | - | 썸네일 이미지 URL |
-| 9 | `latitude` | DECIMAL(10,7)| - | Y | - | 위도 (좌표) |
-| 10| `longitude` | DECIMAL(10,7)| - | Y | - | 경도 (좌표) |
-| 11| `rating` | DECIMAL(3,2) | - | Y | - | 평점 |
-| 12| `created_at` | DATETIME | - | N | - | 숙소 등록일시 |
-
-### 3. Booking (예약) 테이블 : `bookings`
-
-| No | 컬럼명 | 데이터 타입 | PK/FK | Null 허용 | 제약조건 / 기타 | 설명 |
-|---|---|---|---|---|---|---|
-| 1 | `booking_id` | BIGINT | PK | N | AI (Auto Increment) | 예약 식별자 |
-| 2 | `user_id` | BIGINT | FK | N | - | 예약자 회원 번호 |
-| 3 | `lodging_id` | BIGINT | FK | N | - | 대상 숙소 식별자 |
-| 4 | `check_in` | DATE | - | N | - | 체크인 날짜 |
-| 5 | `check_out` | DATE | - | N | - | 체크아웃 날짜 |
-| 6 | `guests` | INT | - | N | - | 예약/숙박 인원 수 |
-| 7 | `total_price`| DECIMAL(12,2)| - | N | - | 총 결제 금액 |
-| 8 | `booking_status`|VARCHAR(30) | - | N | Enum: CONFIRMED, CANCELLED | 예약 상태 |
-| 9 | `created_at` | DATETIME | - | N | - | 예약 생성일시 |
-
-### 4. Inquiry (문의) 테이블 : `inquiries`
-
-| No | 컬럼명 | 데이터 타입 | PK/FK | Null 허용 | 제약조건 / 기타 | 설명 |
-|---|---|---|---|---|---|---|
-| 1 | `inquiry_id` | BIGINT | PK | N | AI (Auto Increment) | 문의 식별자 |
-| 2 | `sender_user_id`| BIGINT | FK | N | - | 발신자(문의자) 회원 번호 |
-| 3 | `inquiry_type`| VARCHAR(40) | - | N | * Enum 유형 참조 | 문의 유형 |
-| 4 | `title` | VARCHAR(200) | - | N | - | 문의 제목 |
-| 5 | `content` | VARCHAR(3000)| - | N | - | 문의 상세 내용 |
-| 6 | `inquiry_status`| VARCHAR(30) | - | N | Enum: OPEN, CLOSED | 문의 상태 |
-| 7 | `created_at` | DATETIME | - | N | - | 문의 등록일시 |
-
-* **inquiry_type Enum Types**: `USER_TO_SELLER`, `SELLER_TO_ADMIN`, `COMMON_TO_ADMIN`
+  - `frontend/public/presentation/index.html`
+  - `frontend/public/schema/index.html`
