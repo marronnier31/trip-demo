@@ -3,7 +3,11 @@ import { getPromotionTarget, PROMOTION_ITEMS } from '../../mock/promotionData';
 import { C, MAX_WIDTH } from '../../styles/tokens';
 
 export default function PromotionsPage() {
-  // TODO(back-end): 프로모션 목록 API가 준비되면 카테고리/상태/노출 우선순위 응답으로 교체한다.
+  // TODO(back-end):
+  // GET /api/v1/promotions
+  // response item example:
+  // { slug, lead, title, subtitle, date, imageUrl, description, applyPath, applyLabel, exposureOrder }
+  // applyPath / applyLabel이 서버에서 내려오면 현재 대표 CTA와 상세 링크 구조를 그대로 유지할 수 있다.
   return (
     <div style={s.page}>
       <section style={s.hero}>
@@ -19,28 +23,26 @@ export default function PromotionsPage() {
 
       <section style={s.section}>
         <div style={s.inner}>
-          <div style={s.grid}>
+          <div style={s.list}>
             {PROMOTION_ITEMS.map((item) => (
-              <article key={item.slug} style={s.card}>
-                <Link to={`/promotions/${item.slug}`} style={s.cardLink}>
-                  <div style={{ ...s.thumbWrap, background: item.gradient }}>
-                    <div>
-                      <p style={s.cardLead}>{item.lead}</p>
-                      <h2 style={s.cardTitle}>{item.title}</h2>
-                      <p style={s.cardSub}>{item.subtitle}</p>
-                    </div>
+              <article key={item.slug} style={s.item}>
+                <div style={s.body}>
+                  <p style={s.cardLead}>{item.lead}</p>
+                  <h2 style={s.cardTitle}>{item.title}</h2>
+                  <p style={s.cardSub}>{item.subtitle}</p>
+                  <p style={s.date}>{item.date}</p>
+                  <p style={s.bodyDesc}>{item.description}</p>
+                  <div style={s.actionRow}>
+                    <Link to={getPromotionTarget(item)} style={s.primaryBtn}>{item.applyLabel}</Link>
+                    <Link to={`/promotions/${item.slug}`} style={s.secondaryLink}>상세 보기</Link>
+                  </div>
+                </div>
+                <div style={s.visualWrap}>
+                  <div style={{ ...s.thumbPanel, background: item.gradient }}>
                     <div style={{ ...s.thumbCircle, background: item.circle }}>
                       <img src={item.imageUrl} alt={item.subtitle} style={s.thumbImage} />
                     </div>
                   </div>
-                  <div style={s.body}>
-                    <p style={s.date}>{item.date}</p>
-                    <p style={s.bodyDesc}>{item.description}</p>
-                  </div>
-                </Link>
-                <div style={s.actionRow}>
-                  <Link to={`/promotions/${item.slug}`} style={s.moreBtn}>상세 보기</Link>
-                  <Link to={getPromotionTarget(item)} style={s.applyBtn}>{item.applyLabel}</Link>
                 </div>
               </article>
             ))}
@@ -60,20 +62,29 @@ const s = {
   desc: { margin: 0, maxWidth: '760px', fontSize: '16px', lineHeight: 1.8, color: C.textSub },
   heroActions: { marginTop: '20px', display: 'flex', gap: '10px' },
   section: { padding: '32px 24px 64px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' },
-  card: { display: 'flex', flexDirection: 'column', background: '#fff', border: `1px solid ${C.borderLight}`, borderRadius: '24px', overflow: 'hidden', boxShadow: '0 12px 28px rgba(15,23,42,0.05)' },
-  cardLink: { display: 'block', textDecoration: 'none' },
-  thumbWrap: { minHeight: '210px', padding: '24px', display: 'flex', justifyContent: 'space-between', gap: '18px', alignItems: 'center' },
+  list: { display: 'grid', gap: '18px' },
+  item: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) 220px',
+    gap: '24px',
+    alignItems: 'stretch',
+    background: '#fff',
+    border: `1px solid ${C.borderLight}`,
+    borderRadius: '24px',
+    overflow: 'hidden',
+  },
+  body: { padding: '24px 24px 22px', minWidth: 0 },
   cardLead: { margin: '0 0 8px', fontSize: '12px', fontWeight: '800', color: C.primary },
-  cardTitle: { margin: '0 0 10px', fontSize: '28px', lineHeight: 1.1, color: C.text, whiteSpace: 'pre-line' },
-  cardSub: { margin: 0, fontSize: '14px', color: C.textSub, fontWeight: '700' },
-  thumbCircle: { width: '96px', height: '96px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' },
-  thumbImage: { width: '100%', height: '100%', objectFit: 'cover' },
-  body: { padding: '20px 22px 18px' },
+  cardTitle: { margin: '0 0 10px', fontSize: '30px', lineHeight: 1.08, color: C.text, whiteSpace: 'pre-line' },
+  cardSub: { margin: '0 0 10px', fontSize: '14px', color: C.textSub, fontWeight: '700' },
   date: { margin: '0 0 10px', fontSize: '13px', color: C.textLight, fontWeight: '700' },
-  bodyDesc: { margin: 0, fontSize: '14px', lineHeight: 1.7, color: C.textSub },
-  actionRow: { display: 'flex', gap: '10px', flexWrap: 'wrap', padding: '0 22px 22px' },
-  moreBtn: { display: 'inline-flex', padding: '10px 14px', borderRadius: '999px', background: '#F5F5F5', color: C.text, fontSize: '13px', fontWeight: '800', textDecoration: 'none' },
-  applyBtn: { display: 'inline-flex', padding: '10px 14px', borderRadius: '999px', background: '#FFF1F1', color: C.primary, fontSize: '13px', fontWeight: '800', textDecoration: 'none' },
+  bodyDesc: { margin: 0, fontSize: '14px', lineHeight: 1.75, color: C.textSub, maxWidth: '760px' },
+  actionRow: { display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '18px', alignItems: 'center' },
+  primaryBtn: { display: 'inline-flex', padding: '11px 16px', borderRadius: '999px', background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)', color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '800' },
+  secondaryLink: { display: 'inline-flex', padding: '11px 2px', color: C.text, textDecoration: 'none', fontSize: '14px', fontWeight: '700' },
+  visualWrap: { display: 'flex' },
+  thumbPanel: { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' },
+  thumbCircle: { width: '116px', height: '116px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
+  thumbImage: { width: '100%', height: '100%', objectFit: 'cover' },
   secondaryBtn: { display: 'inline-flex', padding: '11px 16px', borderRadius: '999px', border: `1px solid ${C.border}`, background: '#fff', color: C.text, textDecoration: 'none', fontSize: '14px', fontWeight: '700' },
 };

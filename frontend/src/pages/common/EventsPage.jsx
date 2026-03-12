@@ -1,9 +1,13 @@
 import { Link } from 'react-router-dom';
-import { EVENT_ITEMS } from '../../mock/eventData';
+import { EVENT_ITEMS, getEventTarget } from '../../mock/eventData';
 import { C, MAX_WIDTH } from '../../styles/tokens';
 
 export default function EventsPage() {
-  // TODO(back-end): 이벤트 목록 API가 준비되면 진행중/종료/카테고리 상태값과 함께 서버 응답으로 교체한다.
+  // TODO(back-end):
+  // GET /api/v1/events
+  // response item example:
+  // { slug, status, audienceLabel, ctaLabel, actionPath, lead, title, date, subtitle, imageUrl, description }
+  // actionPath가 서버에서 확정되면 현재 getEventTarget과 CTA 문구를 그대로 재사용할 수 있다.
   return (
     <div style={s.page}>
       <section style={s.hero}>
@@ -19,31 +23,34 @@ export default function EventsPage() {
 
       <section style={s.section}>
         <div style={s.inner}>
-          <div style={s.grid}>
+          <div style={s.list}>
             {EVENT_ITEMS.map((item) => (
-              <Link key={item.slug} to={`/events/${item.slug}`} style={s.card}>
-                <div style={{ ...s.thumbWrap, background: item.gradient }}>
-                  <div>
-                    <p style={s.cardLead}>{item.lead}</p>
-                    <h2 style={s.cardTitle}>{item.title}</h2>
-                    <p style={s.cardSub}>{item.subtitle}</p>
-                  </div>
-                  <div style={{ ...s.thumbCircle, background: item.circle }}>
-                    <img src={item.imageUrl} alt={item.subtitle} style={s.thumbImage} />
-                  </div>
-                </div>
-                <div style={s.body}>
+              <article key={item.slug} style={s.item}>
+                <div style={s.itemHead}>
                   <div style={s.metaRow}>
                     <span style={{ ...s.statusBadge, ...(item.status === '등급전용' ? s.statusBadgeDark : item.status === '오픈예정' ? s.statusBadgeSoon : s.statusBadgeLive) }}>
                       {item.status}
                     </span>
                     <span style={s.audienceText}>{item.audienceLabel}</span>
+                    <span style={s.date}>{item.date}</span>
                   </div>
-                  <p style={s.date}>{item.date}</p>
-                  <p style={s.bodyDesc}>{item.description}</p>
-                  <span style={s.moreBtn}>{item.ctaLabel}</span>
+                  <div style={s.thumbWrap}>
+                    <div style={{ ...s.thumbCircle, background: item.circle }}>
+                      <img src={item.imageUrl} alt={item.subtitle} style={s.thumbImage} />
+                    </div>
+                  </div>
                 </div>
-              </Link>
+                <div style={s.body}>
+                  <p style={s.cardLead}>{item.lead}</p>
+                  <h2 style={s.cardTitle}>{item.title}</h2>
+                  <p style={s.cardSub}>{item.subtitle}</p>
+                  <p style={s.bodyDesc}>{item.description}</p>
+                  <div style={s.actionRow}>
+                    <Link to={getEventTarget(item)} style={s.primaryBtn}>{item.ctaLabel}</Link>
+                    <Link to={`/events/${item.slug}`} style={s.secondaryLink}>상세 보기</Link>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         </div>
@@ -61,23 +68,35 @@ const s = {
   desc: { margin: 0, maxWidth: '760px', fontSize: '16px', lineHeight: 1.8, color: C.textSub },
   heroActions: { marginTop: '20px', display: 'flex', gap: '10px' },
   section: { padding: '32px 24px 64px' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px' },
-  card: { display: 'block', background: '#fff', border: `1px solid ${C.borderLight}`, borderRadius: '24px', overflow: 'hidden', textDecoration: 'none', boxShadow: '0 12px 28px rgba(15,23,42,0.05)' },
-  thumbWrap: { minHeight: '210px', padding: '24px', display: 'flex', justifyContent: 'space-between', gap: '18px', alignItems: 'center' },
-  cardLead: { margin: '0 0 8px', fontSize: '12px', fontWeight: '800', color: C.primary },
-  cardTitle: { margin: '0 0 10px', fontSize: '28px', lineHeight: 1.1, color: C.text, whiteSpace: 'pre-line' },
-  cardSub: { margin: 0, fontSize: '14px', color: C.textSub, fontWeight: '700' },
-  thumbCircle: { width: '96px', height: '96px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' },
-  thumbImage: { width: '100%', height: '100%', objectFit: 'cover' },
-  body: { padding: '20px 22px 22px' },
+  list: { display: 'grid', gap: '18px' },
+  item: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) 120px',
+    gap: '22px',
+    alignItems: 'center',
+    background: '#fff',
+    border: `1px solid ${C.borderLight}`,
+    borderRadius: '24px',
+    padding: '24px',
+  },
+  itemHead: { display: 'contents' },
   metaRow: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' },
   statusBadge: { display: 'inline-flex', padding: '6px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: '800' },
   statusBadgeLive: { background: '#FFF1F1', color: C.primary },
   statusBadgeSoon: { background: '#EFF6FF', color: '#2563EB' },
   statusBadgeDark: { background: '#18181B', color: '#F9FAFB' },
   audienceText: { fontSize: '12px', color: C.textLight, fontWeight: '700' },
-  date: { margin: '0 0 10px', fontSize: '13px', color: C.textLight, fontWeight: '700' },
-  bodyDesc: { margin: '0 0 18px', fontSize: '14px', lineHeight: 1.7, color: C.textSub },
-  moreBtn: { display: 'inline-flex', padding: '10px 14px', borderRadius: '999px', background: '#FFF1F1', color: C.primary, fontSize: '13px', fontWeight: '800' },
+  date: { fontSize: '12px', color: C.textLight, fontWeight: '700' },
+  body: { minWidth: 0 },
+  cardLead: { margin: '0 0 8px', fontSize: '12px', fontWeight: '800', color: C.primary },
+  cardTitle: { margin: '0 0 10px', fontSize: '30px', lineHeight: 1.08, color: C.text, whiteSpace: 'pre-line' },
+  cardSub: { margin: '0 0 12px', fontSize: '14px', color: C.textSub, fontWeight: '700' },
+  bodyDesc: { margin: 0, fontSize: '14px', lineHeight: 1.75, color: C.textSub, maxWidth: '760px' },
+  thumbWrap: { display: 'flex', justifyContent: 'flex-end' },
+  thumbCircle: { width: '110px', height: '110px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
+  thumbImage: { width: '100%', height: '100%', objectFit: 'cover' },
+  actionRow: { display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '18px', alignItems: 'center' },
+  primaryBtn: { display: 'inline-flex', padding: '11px 16px', borderRadius: '999px', background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)', color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '800' },
+  secondaryLink: { display: 'inline-flex', padding: '11px 2px', color: C.text, textDecoration: 'none', fontSize: '14px', fontWeight: '700' },
   secondaryBtn: { display: 'inline-flex', padding: '11px 16px', borderRadius: '999px', border: `1px solid ${C.border}`, background: '#fff', color: C.text, textDecoration: 'none', fontSize: '14px', fontWeight: '700' },
 };

@@ -5,6 +5,7 @@ export const EVENT_ITEMS = [
     status: '진행중',
     audienceLabel: '전체 회원',
     ctaLabel: '리뷰 이벤트 참여하기',
+    actionPath: '/my/bookings',
     lead: '리뷰만 써도 추첨 혜택!',
     title: '봄 리뷰 챌린지',
     date: '2026.03.11 - 2026.04.10',
@@ -24,6 +25,7 @@ export const EVENT_ITEMS = [
     status: '진행중',
     audienceLabel: '로그인 회원',
     ctaLabel: '출석체크 하러 가기',
+    actionPath: '/attendance',
     lead: '매일 출석하고 포인트 받기',
     title: '출석체크 포인트 페스타',
     date: '2026.03.15 - 2026.04.14',
@@ -43,6 +45,7 @@ export const EVENT_ITEMS = [
     status: '진행중',
     audienceLabel: '추천 가능 회원',
     ctaLabel: '초대 코드 확인하기',
+    actionPath: '/mypage',
     lead: '친구 초대하고 혜택 받기',
     title: '친구 초대 리워드',
     date: '2026.03.20 - 2026.05.20',
@@ -62,6 +65,7 @@ export const EVENT_ITEMS = [
     status: '등급전용',
     audienceLabel: 'BLACK 등급 전용',
     ctaLabel: '전용 혜택 확인하기',
+    actionPath: '/benefits',
     lead: '블랙 등급 전용 한정 혜택',
     title: 'BLACK LOUNGE WEEK',
     date: '2026.04.01 - 2026.04.07',
@@ -80,4 +84,8 @@ export const EVENT_ITEMS = [
 
 export function findEventBySlug(slug) {
   return EVENT_ITEMS.find((item) => item.slug === slug);
+}
+
+export function getEventTarget(event) {
+  return event?.actionPath || '/events';
 }

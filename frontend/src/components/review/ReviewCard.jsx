@@ -39,7 +39,8 @@ const s = {
   item: {
     padding: '18px 0 20px',
     borderBottom: `1px solid ${C.borderLight}`,
-    maxWidth: '760px',
+    maxWidth: '1040px',
+    width: '100%',
   },
   header: { display: 'flex', justifyContent: 'space-between', gap: '14px', alignItems: 'flex-start', marginBottom: '10px' },
   headerActions: { display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' },
@@ -57,10 +58,10 @@ const s = {
     padding: '4px 0',
     cursor: 'pointer',
   },
-  content: { margin: 0, fontSize: '14px', color: '#374151', lineHeight: 1.7, maxWidth: '680px' },
+  content: { margin: 0, fontSize: '15px', color: '#374151', lineHeight: 1.8, maxWidth: '940px' },
   mediaRow: { display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '14px' },
   thumbWrap: {
-    width: '136px',
+    width: '164px',
     borderRadius: '12px',
     overflow: 'hidden',
     background: '#F3F4F6',

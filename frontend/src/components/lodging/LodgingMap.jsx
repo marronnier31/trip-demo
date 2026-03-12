@@ -24,6 +24,24 @@ export default function LodgingMap({ latitude, longitude, name, address, pricePe
     <div style={s.wrap}>
       <style>{`
         .tz-single-marker-shell { background: transparent; border: none; }
+        .leaflet-top,
+        .leaflet-bottom,
+        .leaflet-control {
+          z-index: 300 !important;
+        }
+        .leaflet-control-attribution {
+          z-index: 250 !important;
+        }
+        .leaflet-pane,
+        .leaflet-map-pane,
+        .leaflet-tile-pane,
+        .leaflet-overlay-pane,
+        .leaflet-shadow-pane,
+        .leaflet-marker-pane,
+        .leaflet-tooltip-pane,
+        .leaflet-popup-pane {
+          z-index: 120 !important;
+        }
         .tz-single-marker {
           min-width: 72px;
           height: 28px;
@@ -106,7 +124,7 @@ const s = {
   },
   map: {
     width: '100%',
-    height: '340px',
+    height: '460px',
   },
   fallback: {
     padding: '24px',
@@ -119,7 +137,7 @@ const s = {
     right: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
-    zIndex: 500,
+    zIndex: 320,
     display: 'flex',
     flexDirection: 'column',
     gap: '8px',

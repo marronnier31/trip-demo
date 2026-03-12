@@ -76,7 +76,11 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const profileWrapRef = useRef(null);
-  // TODO(back-end): 헤더 혜택 숫자는 사용자 요약 API 응답을 붙이면 된다.
+  // TODO(back-end):
+  // GET /api/v1/me/summary
+  // response example:
+  // { name, role, currentGrade, nextGrade, nextGradeRemainBookings, mileageBalance, couponCount }
+  // 현재 benefitSnapshot 기반 헤더 혜택/등급/관리자 노출 문맥은 이 응답으로 그대로 교체 가능하다.
 
   const handleLogout = () => {
     logout();
@@ -153,8 +157,8 @@ export default function Header() {
         }
         @media (max-width: 1280px) {
           .tz-header-inner { grid-template-columns: auto 1fr auto !important; }
-          .tz-header-nav a { padding: 6px 10px !important; font-size: 12px !important; }
-          .tz-header-actions a { padding: 7px 12px !important; font-size: 12px !important; }
+          .tz-header-nav a { padding: 7px 11px !important; font-size: 13px !important; }
+          .tz-header-actions a { padding: 8px 12px !important; font-size: 13px !important; }
         }
         @media (max-width: 980px) {
           .tz-header-nav { overflow-x: auto !important; }
@@ -205,93 +209,112 @@ export default function Header() {
               <Link to="/signup" style={s.signupBtn}>회원가입</Link>
             </>
           ) : (
-            <div style={s.profileWrap} ref={profileWrapRef}>
-              <button type="button" style={s.profilePillBtn} onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen}>
-                <div style={s.profilePillIcon}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 2L11 13" />
-                    <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-                  </svg>
-                </div>
-                  <div style={s.profilePillText}>
-                    <div style={s.profilePillName}>{user.name}</div>
-                    <div style={s.profilePillGrade}>
-                    <span style={{ color: '#8A7DF5', fontWeight: 800 }}>{benefitSnapshot.currentGrade}</span> 회원
-                    </div>
+            <>
+              {user.role === ROLES.ADMIN ? (
+                <Link to="/admin" style={s.adminEntryBtn}>
+                  관리자 페이지
+                </Link>
+              ) : null}
+              <div style={s.profileWrap} ref={profileWrapRef}>
+                <button type="button" style={s.profilePillBtn} onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen}>
+                  <div style={s.profilePillIcon}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 2L11 13" />
+                      <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+                    </svg>
                   </div>
-                <div style={s.profilePillHamburger}>☰</div>
-              </button>
-              {menuOpen && (
-                <div style={s.dropdown}>
-                  <div style={s.dropdownHeader}>
-                    <Link to="/mypage" style={s.dropdownUserName} onClick={() => setMenuOpen(false)}>
-                      <span>{user.name}</span>
-                      <span style={s.dropdownUserArrow}>›</span>
-                    </Link>
-
-                    <div style={s.dropdownGradeCard}>
-                      <div style={s.dropdownGradeTop}>
-                        <span style={s.dropdownGradeText}>{benefitSnapshot.currentGrade}</span>
-                        <Link to="/benefits" style={s.dropdownBenefitsBtn} onClick={() => setMenuOpen(false)}>혜택 안내</Link>
+                    <div style={s.profilePillText}>
+                      <div style={s.profilePillName}>{user.name}</div>
+                      <div style={s.profilePillGrade}>
+                      <span style={{ color: '#8A7DF5', fontWeight: 800 }}>{benefitSnapshot.currentGrade}</span> 회원
                       </div>
-                      <div style={s.dropdownGradeDesc}>
-                        <span style={s.dropdownGradeHighlight}>{benefitSnapshot.nextGradeRemainBookings}번 더 예약하면</span>
-                        <br />{benefitSnapshot.nextGrade} 등급 혜택이 열려요
+                    </div>
+                  <div style={s.profilePillHamburger}>☰</div>
+                </button>
+                {menuOpen && (
+                  <div style={s.dropdown}>
+                    <div style={s.dropdownHeader}>
+                      <Link to="/mypage" style={s.dropdownUserName} onClick={() => setMenuOpen(false)}>
+                        <span>{user.name}</span>
+                        <span style={s.dropdownUserArrow}>›</span>
+                      </Link>
+
+                      <div style={s.dropdownGradeCard}>
+                        <div style={s.dropdownGradeTop}>
+                          <span style={s.dropdownGradeText}>{benefitSnapshot.currentGrade}</span>
+                          <Link to="/benefits" style={s.dropdownBenefitsBtn} onClick={() => setMenuOpen(false)}>혜택 안내</Link>
+                        </div>
+                        <div style={s.dropdownGradeDesc}>
+                          <span style={s.dropdownGradeHighlight}>{benefitSnapshot.nextGradeRemainBookings}번 더 예약하면</span>
+                          <br />{benefitSnapshot.nextGrade} 등급 혜택이 열려요
+                        </div>
+                      </div>
+
+                      <div style={s.dropdownBenefitLinks}>
+                        <div style={s.dropdownBenefitItem}>
+                          <div style={s.benefitLabel}>포인트</div>
+                          <div style={s.benefitValue}>{benefitSnapshot.mileageBalance.toLocaleString()}</div>
+                          <Link to={buildPointsDestination()} style={s.benefitActionBtn} onClick={() => setMenuOpen(false)}>
+                            사용하러 가기
+                          </Link>
+                        </div>
+                        <div style={s.dropdownBenefitDivider} />
+                        <div style={s.dropdownBenefitItem}>
+                          <div style={s.benefitLabel}>쿠폰</div>
+                          <div style={s.benefitValue}>{benefitSnapshot.couponCount}</div>
+                          <Link to={buildCouponDestination(couponItems.find((coupon) => coupon.status === 'ISSUED'))} style={s.benefitActionBtn} onClick={() => setMenuOpen(false)}>
+                            사용하러 가기
+                          </Link>
+                        </div>
                       </div>
                     </div>
 
-                    <div style={s.dropdownBenefitLinks}>
-                      <div style={s.dropdownBenefitItem}>
-                        <div style={s.benefitLabel}>포인트</div>
-                        <div style={s.benefitValue}>{benefitSnapshot.mileageBalance.toLocaleString()}</div>
-                        <Link to={buildPointsDestination()} style={s.benefitActionBtn} onClick={() => setMenuOpen(false)}>
-                          사용하러 가기
-                        </Link>
-                      </div>
-                      <div style={s.dropdownBenefitDivider} />
-                      <div style={s.dropdownBenefitItem}>
-                        <div style={s.benefitLabel}>쿠폰</div>
-                        <div style={s.benefitValue}>{benefitSnapshot.couponCount}</div>
-                        <Link to={buildCouponDestination(couponItems.find((coupon) => coupon.status === 'ISSUED'))} style={s.benefitActionBtn} onClick={() => setMenuOpen(false)}>
-                          사용하러 가기
-                        </Link>
-                      </div>
-                    </div>
+                    <ul style={s.dropdownMenu}>
+                      {DROPDOWN_SHORTCUTS.map(m => (
+                        <li key={m.label}>
+                          {renderDropdownEntry(m)}
+                        </li>
+                      ))}
+
+                      <li><div style={s.dropdownMenuSection} /></li>
+                      <li><div style={s.dropdownMenuHeader}>모든 여행</div></li>
+
+                      {DROPDOWN_TRAVEL_LINKS.map(m => (
+                        <li key={m.label}>
+                          {renderDropdownEntry(m)}
+                        </li>
+                      ))}
+
+                      <li><div style={s.dropdownMenuSection} /></li>
+
+                      {user.role === ROLES.ADMIN ? (
+                        <>
+                          <li><div style={s.dropdownMenuHeader}>관리자</div></li>
+                          {(ROLE_LINKS[ROLES.ADMIN] || []).map((m) => (
+                            <li key={m.label}>
+                              {renderDropdownEntry(m)}
+                            </li>
+                          ))}
+                          <li><div style={s.dropdownMenuSection} /></li>
+                        </>
+                      ) : null}
+
+                      {DROPDOWN_SERVICE_LINKS.map(m => (
+                        <li key={m.label}>
+                          {renderDropdownEntry(m)}
+                        </li>
+                      ))}
+                      <li><div style={s.dropdownMenuSection} /></li>
+                      <li>
+                        <button style={{ ...s.dropdownMenuItem, width: '100%', background: 'none', border: 'none', textAlign: 'left', fontFamily: 'inherit' }} onClick={handleLogout}>
+                          로그아웃
+                        </button>
+                      </li>
+                    </ul>
                   </div>
-
-                  <ul style={s.dropdownMenu}>
-                    {DROPDOWN_SHORTCUTS.map(m => (
-                      <li key={m.label}>
-                        {renderDropdownEntry(m)}
-                      </li>
-                    ))}
-
-                    <li><div style={s.dropdownMenuSection} /></li>
-                    <li><div style={s.dropdownMenuHeader}>모든 여행</div></li>
-
-                    {DROPDOWN_TRAVEL_LINKS.map(m => (
-                      <li key={m.label}>
-                        {renderDropdownEntry(m)}
-                      </li>
-                    ))}
-
-                    <li><div style={s.dropdownMenuSection} /></li>
-
-                    {DROPDOWN_SERVICE_LINKS.map(m => (
-                      <li key={m.label}>
-                        {renderDropdownEntry(m)}
-                      </li>
-                    ))}
-                    <li><div style={s.dropdownMenuSection} /></li>
-                    <li>
-                      <button style={{ ...s.dropdownMenuItem, width: '100%', background: 'none', border: 'none', textAlign: 'left', fontFamily: 'inherit' }} onClick={handleLogout}>
-                        로그아웃
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </>
           )}
         </div>
 
@@ -348,7 +371,7 @@ const s = {
     maxWidth: 'min(1580px, calc(100vw - 40px))',
     margin: '0 auto',
     padding: '0 12px',
-    height: '74px',
+    height: '78px',
     display: 'grid',
     gridTemplateColumns: '220px 1fr 220px',
     alignItems: 'center',
@@ -357,11 +380,11 @@ const s = {
   logo: { textDecoration: 'none', minWidth: '220px' },
   nav: { display: 'flex', gap: '6px', flexWrap: 'nowrap', justifyContent: 'center', flex: 1, minWidth: 0, overflowX: 'hidden', scrollbarWidth: 'none' },
   navLink: {
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: '700',
     color: C.textSub,
     textDecoration: 'none',
-    padding: '8px 13px',
+    padding: '9px 14px',
     borderRadius: '999px',
     border: '1px solid #D9DEE6',
     transition: 'color 0.15s, background 0.15s, border-color 0.15s',
@@ -373,7 +396,30 @@ const s = {
     border: '1px solid #E8484A',
     boxShadow: 'none',
   },
-  actions: { display: 'flex', alignItems: 'center', gap: '8px', minWidth: '220px', justifyContent: 'flex-end', flexWrap: 'nowrap' },
+  actions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    minWidth: 'auto',
+    justifyContent: 'flex-end',
+    flexWrap: 'nowrap',
+    flexShrink: 0,
+  },
+  adminEntryBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '44px',
+    padding: '0 13px',
+    borderRadius: '999px',
+    border: `1px solid ${C.border}`,
+    background: '#fff',
+    color: '#2F3640',
+    textDecoration: 'none',
+    fontSize: '13px',
+    fontWeight: 700,
+    whiteSpace: 'nowrap',
+  },
   mobileToggle: {
     display: 'none',
     width: '38px',
@@ -388,39 +434,41 @@ const s = {
     cursor: 'pointer',
   },
   loginBtn: {
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: '600',
     color: C.textSub,
     textDecoration: 'none',
-    padding: '8px 14px',
+    padding: '9px 15px',
     borderRadius: '999px',
     border: `1px solid ${C.border}`,
     background: '#fff',
   },
   signupBtn: {
-    fontSize: '13px',
+    fontSize: '14px',
     fontWeight: '700',
     color: '#fff',
     textDecoration: 'none',
-    padding: '8px 14px',
+    padding: '9px 15px',
     borderRadius: '999px',
     background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)',
   },
-  profileWrap: { display: 'flex', alignItems: 'center', gap: '4px', position: 'relative' },
+  profileWrap: { display: 'flex', alignItems: 'center', gap: '4px', position: 'relative', flexShrink: 0 },
   profilePillBtn: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
     border: '1px solid #EAEAEA',
     borderRadius: '999px',
-    padding: '6px 14px 6px 6px',
+    minHeight: '44px',
+    padding: '5px 13px 5px 5px',
     background: '#fff',
     cursor: 'pointer',
     transition: 'background 0.2s',
+    whiteSpace: 'nowrap',
   },
   profilePillIcon: {
-    width: '32px',
-    height: '32px',
+    width: '34px',
+    height: '34px',
     borderRadius: '50%',
     background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)',
     color: '#FFFFFF',
@@ -432,23 +480,24 @@ const s = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-start',
-    gap: '2px',
+    gap: '1px',
+    minWidth: '82px',
   },
   profilePillName: {
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: '800',
     color: '#333',
-    lineHeight: 1,
+    lineHeight: 1.15,
   },
   profilePillGrade: {
-    fontSize: '12px',
+    fontSize: '13px',
     color: '#666',
-    lineHeight: 1,
+    lineHeight: 1.15,
   },
   profilePillHamburger: {
-    fontSize: '18px',
+    fontSize: '16px',
     color: '#333',
-    marginLeft: '6px',
+    marginLeft: '2px',
     fontWeight: 'bold',
   },
   dropdown: {
