@@ -39,6 +39,7 @@ const DROPDOWN_SERVICE_LINKS = [
 const ROLE_LINKS = {
   [ROLES.USER]: [
     { to: '/my/bookings', label: '내 예약' },
+    { to: '/host/apply', label: '호스트 신청' },
     { to: '/mypage', label: '마이페이지' },
   ],
   [ROLES.SELLER]: [
@@ -76,6 +77,8 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const profileWrapRef = useRef(null);
+  const isPrivilegedUser = user?.role === ROLES.SELLER || user?.role === ROLES.ADMIN;
+  const displayGrade = isPrivilegedUser ? 'BLACK' : benefitSnapshot.currentGrade;
   // TODO(back-end):
   // GET /api/v1/me/summary
   // response example:
@@ -93,6 +96,27 @@ export default function Header() {
     setMenuOpen(false);
     setMobileNavOpen(false);
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined;
+
+    const prevOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setMobileNavOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileNavOpen]);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
@@ -205,14 +229,25 @@ export default function Header() {
         <div style={s.actions} className="tz-header-actions">
           {!user ? (
             <>
+              <Link to="/host/apply" style={s.hostEntryBtn}>호스트 등록하기</Link>
               <Link to="/login" style={s.loginBtn}>로그인</Link>
               <Link to="/signup" style={s.signupBtn}>회원가입</Link>
             </>
           ) : (
             <>
+              {user.role === ROLES.USER ? (
+                <Link to="/host/apply" style={s.hostEntryBtn}>
+                  호스트 등록하기
+                </Link>
+              ) : null}
               {user.role === ROLES.ADMIN ? (
                 <Link to="/admin" style={s.adminEntryBtn}>
                   관리자 페이지
+                </Link>
+              ) : null}
+              {user.role === ROLES.SELLER ? (
+                <Link to="/seller" style={s.adminEntryBtn}>
+                  판매자 페이지
                 </Link>
               ) : null}
               <div style={s.profileWrap} ref={profileWrapRef}>
@@ -226,7 +261,7 @@ export default function Header() {
                     <div style={s.profilePillText}>
                       <div style={s.profilePillName}>{user.name}</div>
                       <div style={s.profilePillGrade}>
-                      <span style={{ color: '#8A7DF5', fontWeight: 800 }}>{benefitSnapshot.currentGrade}</span> 회원
+                      <span style={{ color: '#8A7DF5', fontWeight: 800 }}>{displayGrade}</span> 회원
                       </div>
                     </div>
                   <div style={s.profilePillHamburger}>☰</div>
@@ -241,12 +276,18 @@ export default function Header() {
 
                       <div style={s.dropdownGradeCard}>
                         <div style={s.dropdownGradeTop}>
-                          <span style={s.dropdownGradeText}>{benefitSnapshot.currentGrade}</span>
+                          <span style={s.dropdownGradeText}>{displayGrade}</span>
                           <Link to="/benefits" style={s.dropdownBenefitsBtn} onClick={() => setMenuOpen(false)}>혜택 안내</Link>
                         </div>
                         <div style={s.dropdownGradeDesc}>
-                          <span style={s.dropdownGradeHighlight}>{benefitSnapshot.nextGradeRemainBookings}번 더 예약하면</span>
-                          <br />{benefitSnapshot.nextGrade} 등급 혜택이 열려요
+                          {isPrivilegedUser ? (
+                            <>운영 계정은 BLACK 등급 기준 혜택 문맥으로 고정 표시됩니다.</>
+                          ) : (
+                            <>
+                              <span style={s.dropdownGradeHighlight}>{benefitSnapshot.nextGradeRemainBookings}번 더 예약하면</span>
+                              <br />{benefitSnapshot.nextGrade} 등급 혜택이 열려요
+                            </>
+                          )}
                         </div>
                       </div>
 
@@ -323,35 +364,48 @@ export default function Header() {
           style={s.mobileToggle}
           className="tz-header-mobile-toggle"
           onClick={() => setMobileNavOpen((v) => !v)}
-          aria-label="메뉴 열기"
+          aria-label={mobileNavOpen ? '메뉴 닫기' : '메뉴 열기'}
+          aria-expanded={mobileNavOpen}
+          aria-controls="tz-mobile-navigation"
         >
           ☰
         </button>
       </div>
 
       {mobileNavOpen && (
-        <div style={s.mobilePanel} className="tz-header-mobile-panel">
-          <div style={s.mobileLinks}>
-            {BASE_LINKS.map((link) => (
-              <Link key={link.to} to={link.to} style={isLinkActive(location, link.to) ? s.mobilePrimaryLink : s.mobileLink} onClick={() => setMobileNavOpen(false)}>
-                {link.label}
-              </Link>
-            ))}
-            {user && (ROLE_LINKS[user.role] || []).map((link) => (
-              <Link key={link.to} to={link.to} style={isLinkActive(location, link.to) ? s.mobilePrimaryLink : s.mobileLink} onClick={() => setMobileNavOpen(false)}>{link.label}</Link>
-            ))}
+        <>
+          <button
+            type="button"
+            style={s.mobileBackdrop}
+            aria-label="메뉴 닫기"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <div style={s.mobilePanel} className="tz-header-mobile-panel" id="tz-mobile-navigation">
+            <div style={s.mobileLinks}>
+              {BASE_LINKS.map((link) => (
+                <Link key={link.to} to={link.to} style={isLinkActive(location, link.to) ? s.mobilePrimaryLink : s.mobileLink} onClick={() => setMobileNavOpen(false)}>
+                  {link.label}
+                </Link>
+              ))}
+              {(!user || user.role === ROLES.USER) ? (
+                <Link to="/host/apply" style={s.mobileLink} onClick={() => setMobileNavOpen(false)}>호스트 등록하기</Link>
+              ) : null}
+              {user && (ROLE_LINKS[user.role] || []).map((link) => (
+                <Link key={link.to} to={link.to} style={isLinkActive(location, link.to) ? s.mobilePrimaryLink : s.mobileLink} onClick={() => setMobileNavOpen(false)}>{link.label}</Link>
+              ))}
+            </div>
+            <div style={s.mobileActions}>
+              {!user ? (
+                <>
+                  <Link to="/login" style={s.mobileGhostBtn} onClick={() => setMobileNavOpen(false)}>로그인</Link>
+                  <Link to="/signup" style={s.mobilePrimaryBtn} onClick={() => setMobileNavOpen(false)}>회원가입</Link>
+                </>
+              ) : (
+                <button style={s.mobileGhostBtn} onClick={handleLogout}>로그아웃</button>
+              )}
+            </div>
           </div>
-          <div style={s.mobileActions}>
-            {!user ? (
-              <>
-                <Link to="/login" style={s.mobileGhostBtn} onClick={() => setMobileNavOpen(false)}>로그인</Link>
-                <Link to="/signup" style={s.mobilePrimaryBtn} onClick={() => setMobileNavOpen(false)}>회원가입</Link>
-              </>
-            ) : (
-              <button style={s.mobileGhostBtn} onClick={handleLogout}>로그아웃</button>
-            )}
-          </div>
-        </div>
+        </>
       )}
     </header>
   );
@@ -373,7 +427,7 @@ const s = {
     padding: '0 12px',
     height: '78px',
     display: 'grid',
-    gridTemplateColumns: '220px 1fr 220px',
+    gridTemplateColumns: '220px 1fr 320px',
     alignItems: 'center',
     columnGap: '10px',
   },
@@ -400,25 +454,57 @@ const s = {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    minWidth: 'auto',
+    minWidth: '320px',
     justifyContent: 'flex-end',
     flexWrap: 'nowrap',
     flexShrink: 0,
+  },
+  actionBtnBase: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '44px',
+    padding: '0 14px',
+    borderRadius: '999px',
+    fontSize: '13px',
+    lineHeight: 1,
+    whiteSpace: 'nowrap',
+    textDecoration: 'none',
+    boxSizing: 'border-box',
   },
   adminEntryBtn: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: '44px',
-    padding: '0 13px',
+    padding: '0 14px',
     borderRadius: '999px',
     border: `1px solid ${C.border}`,
     background: '#fff',
     color: '#2F3640',
-    textDecoration: 'none',
     fontSize: '13px',
     fontWeight: 700,
     whiteSpace: 'nowrap',
+    lineHeight: 1,
+    boxSizing: 'border-box',
+    textDecoration: 'none',
+  },
+  hostEntryBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '44px',
+    padding: '0 14px',
+    borderRadius: '999px',
+    border: '1px solid #F0D6D7',
+    background: '#FFF7F7',
+    color: '#C13A3D',
+    fontSize: '13px',
+    fontWeight: 700,
+    whiteSpace: 'nowrap',
+    lineHeight: 1,
+    boxSizing: 'border-box',
+    textDecoration: 'none',
   },
   mobileToggle: {
     display: 'none',
@@ -434,23 +520,37 @@ const s = {
     cursor: 'pointer',
   },
   loginBtn: {
-    fontSize: '14px',
-    fontWeight: '600',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '44px',
+    padding: '0 14px',
+    fontSize: '13px',
+    lineHeight: 1,
+    fontWeight: '700',
     color: C.textSub,
     textDecoration: 'none',
-    padding: '9px 15px',
     borderRadius: '999px',
     border: `1px solid ${C.border}`,
     background: '#fff',
+    boxSizing: 'border-box',
+    whiteSpace: 'nowrap',
   },
   signupBtn: {
-    fontSize: '14px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '44px',
+    padding: '0 14px',
+    fontSize: '13px',
+    lineHeight: 1,
     fontWeight: '700',
     color: '#fff',
     textDecoration: 'none',
-    padding: '9px 15px',
     borderRadius: '999px',
     background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)',
+    boxSizing: 'border-box',
+    whiteSpace: 'nowrap',
   },
   profileWrap: { display: 'flex', alignItems: 'center', gap: '4px', position: 'relative', flexShrink: 0 },
   profilePillBtn: {
@@ -669,9 +769,27 @@ const s = {
   },
   mobilePanel: {
     display: 'none',
-    borderTop: '1px solid #F0E8E8',
-    background: '#fff',
+    position: 'absolute',
+    top: 'calc(100% + 8px)',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: 'min(520px, calc(100vw - 24px))',
+    zIndex: 130,
+    border: '1px solid rgba(233, 225, 225, 0.96)',
+    borderRadius: '22px',
+    background: 'rgba(255,255,255,0.97)',
+    backdropFilter: 'blur(18px)',
+    boxShadow: '0 20px 44px rgba(26, 31, 44, 0.14)',
     padding: '14px 16px 16px',
+  },
+  mobileBackdrop: {
+    position: 'fixed',
+    inset: 0,
+    zIndex: 120,
+    border: 'none',
+    background: 'rgba(17, 17, 17, 0.24)',
+    backdropFilter: 'blur(4px)',
+    cursor: 'pointer',
   },
   mobileLinks: {
     display: 'flex',

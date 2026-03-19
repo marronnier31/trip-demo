@@ -23,7 +23,7 @@ export default function LeisurePage() {
         <div style={s.inner}>
           <p style={s.eyebrow}>LEISURE & TICKET</p>
           <h1 style={s.title}>레저·티켓</h1>
-          <p style={s.desc}>숙소 예약과 함께 묶어보기 좋은 체험 상품 결과형 화면입니다. 지금은 프론트 mock으로 먼저 구성했습니다.</p>
+          <p style={s.desc}>숙소 예약과 함께 보기 좋은 체험 상품을 한눈에 비교할 수 있는 결과형 페이지입니다.</p>
           <div style={s.actions}>
             <Link to="/events" style={s.primaryBtn}>이벤트 보기</Link>
             <Link to="/support" style={s.secondaryBtn}>문의하기</Link>

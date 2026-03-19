@@ -50,7 +50,7 @@ export default function SellerLodgingCreatePage() {
             <div style={s.row}>
               <div style={{ flex: 1 }}>
                 <label style={s.label}>지역 <span style={s.req}>*</span></label>
-                <select style={s.input} value={form.region} onChange={set('region')} required>
+                <select style={s.select} value={form.region} onChange={set('region')} required>
                   <option value="">지역 선택</option>
                   {ALL_REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
@@ -132,6 +132,7 @@ const s = {
   req: { color: C.primary },
   input: {
     width: '100%',
+    minHeight: '48px',
     padding: '12px 14px',
     border: `1px solid ${C.border}`,
     borderRadius: R.md,
@@ -140,6 +141,25 @@ const s = {
     boxSizing: 'border-box',
     outline: 'none',
     background: C.bg,
+  },
+  select: {
+    width: '100%',
+    minHeight: '48px',
+    padding: '12px 40px 12px 14px',
+    border: `1px solid ${C.border}`,
+    borderRadius: R.md,
+    fontSize: '15px',
+    color: C.text,
+    boxSizing: 'border-box',
+    outline: 'none',
+    backgroundColor: C.bg,
+    backgroundImage: 'linear-gradient(45deg, transparent 50%, #8A6B64 50%), linear-gradient(135deg, #8A6B64 50%, transparent 50%)',
+    backgroundPosition: 'calc(100% - 18px) calc(50% - 2px), calc(100% - 12px) calc(50% - 2px)',
+    backgroundSize: '6px 6px, 6px 6px',
+    backgroundRepeat: 'no-repeat',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
   },
   row: { display: 'flex', gap: '12px' },
   priceWrap: { position: 'relative' },

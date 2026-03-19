@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TripZone User Flow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+KR:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background:
+          radial-gradient(circle at top, rgba(88, 136, 196, 0.24), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(88, 136, 196, 0.1), transparent 24%),
+          #0c1118;
+        color: #e6edf3;
+        font-family: "Manrope", "Noto Sans KR", sans-serif;
+      }
+      a { color: inherit; }
+      #header {
+        padding: 20px 30px;
+        background: rgba(17, 24, 33, 0.9);
+        border-bottom: 1px solid rgba(99, 119, 146, 0.22);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        backdrop-filter: blur(12px);
+      }
+      #header h1 { font-size: 30px; letter-spacing: -0.03em; font-weight: 800; }
+      #header .sub { color: #9fb0c2; font-size: 15px; font-weight: 700; }
+      #header .nav {
+        margin-left: auto;
+        color: #d7e3f1;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(110, 168, 215, 0.22);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      #legend { display: flex; gap: 14px; flex-wrap: wrap; width: 100%; color: #93a4b8; font-size: 13px; }
+      .legend-item { display: inline-flex; align-items: center; gap: 8px; }
+      .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+      #wrapper { overflow: auto; padding: 32px; }
+      .summary-board {
+        min-width: 1540px;
+        margin-bottom: 22px;
+        padding: 16px;
+        border-radius: 22px;
+        border: 1px solid rgba(99, 119, 146, 0.22);
+        background: linear-gradient(180deg, rgba(14, 22, 32, 0.96), rgba(17, 27, 40, 0.98));
+        box-shadow: 0 24px 56px rgba(0, 0, 0, 0.28);
+      }
+      .summary-board h2 {
+        font-size: 18px;
+        letter-spacing: -0.03em;
+        margin-bottom: 8px;
+      }
+      .summary-board p {
+        color: #93a4b8;
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+      .summary-flow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .summary-node, .summary-arrow {
+        flex: 0 0 auto;
+      }
+      .summary-node {
+        min-width: 150px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #182434;
+        border: 1px solid rgba(127, 184, 230, 0.32);
+        color: #edf3f9;
+        font-size: 13px;
+        font-weight: 800;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+        text-align: center;
+      }
+      .summary-node.core {
+        background: #322b1f;
+        border-color: rgba(245, 201, 107, 0.62);
+      }
+      .summary-node span {
+        display: block;
+        margin-top: 4px;
+        color: #93a4b8;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .summary-arrow {
+        color: rgba(127, 184, 230, 0.7);
+        font-size: 18px;
+        font-weight: 800;
+      }
+      #canvas {
+        min-width: 1540px;
+        background:
+          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(8, 13, 20, 0.98), rgba(13, 20, 29, 0.98));
+        background-size: 32px 32px, 32px 32px, auto;
+        border: 1px solid rgba(99, 119, 146, 0.22);
+        border-radius: 30px;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.34);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>TripZone User Flow</h1>
+      <span class="sub">General User Relationship Map</span>
+      <a class="nav" href="./usecases.html">흐름도 목록으로 →</a>
+      <div id="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#7fb8e6"></span>일반 노드</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f5c96b"></span>중심 노드</div>
+        <div class="legend-item">실선: 주요 흐름</div>
+        <div class="legend-item">점선: 보조 흐름</div>
+      </div>
+    </div>
+    <div id="wrapper">
+      <section class="summary-board">
+        <h2>핵심 흐름 요약</h2>
+        <p>먼저 큰 흐름만 보고, 아래 상세 그래프에서 세부 분기를 확인하면 됩니다.</p>
+        <div class="summary-flow">
+          <div class="summary-node core">사용자로그인<span>사용자 진입점</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node">이벤트 · 계정 찾기<span>탐색/기초 계정 동선</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node core">숙소관리<span>숙소 탐색 시작</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node core">마이페이지<span>문의/혜택/예약 관리</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node">예약요청승인 · 취소관리<span>예약 후속 처리</span></div>
+        </div>
+      </section>
+      <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <script>
+      const svg = document.getElementById("canvas");
+      const NS = "http://www.w3.org/2000/svg";
+      const BOX_W = 188;
+      const BOX_H = 64;
+      const section = {
+        x: 50, y: 48, w: 1440, h: 860, color: "#7fb8e6", bg: "#101b27", titleBg: "#14283a",
+        nodeFill: "#182434", coreFill: "#322b1f",
+        title: "01 일반 사용자", subtitle: "탐색 · 계정 · 숙소 예약 · 마이페이지 흐름"
+      };
+      const nodes = [
+        { id: "login", x: 616, y: 138, label: "사용자로그인", core: true },
+        { id: "event", x: 128, y: 286, label: "이벤트" },
+        { id: "eventDetail", x: 128, y: 382, label: "이벤트상세조회" },
+        { id: "id", x: 402, y: 286, label: "아이디찾기" },
+        { id: "pw", x: 402, y: 382, label: "비밀번호찾기" },
+        { id: "stay", x: 676, y: 286, label: "숙소관리", core: true },
+        { id: "stayCreate", x: 676, y: 382, label: "숙소등록" },
+        { id: "stayEdit", x: 676, y: 478, label: "숙소수정" },
+        { id: "mypage", x: 950, y: 286, label: "마이페이지", core: true },
+        { id: "chat", x: 950, y: 382, label: "문의내역·채팅방" },
+        { id: "coupon", x: 950, y: 478, label: "쿠폰·마일리지" },
+        { id: "booking", x: 950, y: 574, label: "예약요청승인", core: true },
+        { id: "bookingReq", x: 1224, y: 382, label: "예약요청" },
+        { id: "bookingCancelReq", x: 1224, y: 478, label: "예약취소요청" },
+        { id: "cancelManage", x: 1224, y: 574, label: "예약취소관리" },
+        { id: "stayDone", x: 676, y: 574, label: "숙박완료처리" },
+        { id: "logout", x: 616, y: 732, label: "사용자로그아웃" }
+      ];
+      const edges = [
+        ["login", "event"], ["event", "eventDetail", true],
+        ["login", "id"], ["login", "pw", true],
+        ["login", "stay"], ["stay", "stayCreate"], ["stay", "stayEdit", true],
+        ["login", "mypage"], ["mypage", "chat"], ["mypage", "coupon"],
+        ["mypage", "booking"], ["booking", "bookingReq"], ["booking", "bookingCancelReq", true],
+        ["booking", "cancelManage"], ["booking", "stayDone", true],
+        ["login", "logout", true]
+      ];
+      function create(tag, attrs = {}, text) {
+        const el = document.createElementNS(NS, tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        if (text !== undefined) el.textContent = text;
+        return el;
+      }
+      function center(n) { return { x: n.x + BOX_W / 2, y: n.y + BOX_H / 2 }; }
+      function route(a, b) {
+        const s = center(a), e = center(b), dx = e.x - s.x, dy = e.y - s.y;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          const sx = dx > 0 ? a.x + BOX_W : a.x;
+          const ex = dx > 0 ? b.x : b.x + BOX_W;
+          const mx = (sx + ex) / 2;
+          return `M ${sx} ${s.y} L ${mx} ${s.y} L ${mx} ${e.y} L ${ex} ${e.y}`;
+        }
+        const sy = dy > 0 ? a.y + BOX_H : a.y;
+        const ey = dy > 0 ? b.y : b.y + BOX_H;
+        const my = (sy + ey) / 2;
+        return `M ${s.x} ${sy} L ${s.x} ${my} L ${e.x} ${my} L ${e.x} ${ey}`;
+      }
+      function draw() {
+        svg.setAttribute("viewBox", "0 0 1540 940");
+        const defs = create("defs");
+        const shadow = create("filter", { id: "shadow", x: "-20%", y: "-20%", width: "140%", height: "160%" });
+        shadow.appendChild(create("feDropShadow", { dx: "0", dy: "10", stdDeviation: "12", "flood-color": "#05080d", "flood-opacity": "0.32" }));
+        defs.appendChild(shadow);
+        const coreGlow = create("filter", { id: "coreGlow", x: "-30%", y: "-30%", width: "160%", height: "180%" });
+        coreGlow.appendChild(create("feDropShadow", { dx: "0", dy: "0", stdDeviation: "10", "flood-color": "#f5c96b", "flood-opacity": "0.14" }));
+        defs.appendChild(coreGlow);
+        const marker = create("marker", { id: "arrow", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "8", markerHeight: "8", orient: "auto-start-reverse" });
+        marker.appendChild(create("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: section.color }));
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        svg.appendChild(create("rect", { x: section.x, y: section.y, width: section.w, height: section.h, rx: "24", fill: section.bg, stroke: section.color, "stroke-opacity": "0.2", "stroke-width": "1.8" }));
+        svg.appendChild(create("rect", { x: section.x + 16, y: section.y + 16, width: section.w - 32, height: 70, rx: "18", fill: section.titleBg, stroke: section.color, "stroke-opacity": "0.12" }));
+        svg.appendChild(create("text", { x: section.x + 28, y: section.y + 48, fill: "#f3f7fb", "font-size": "28", "font-weight": "800", "letter-spacing": "-0.03em" }, section.title));
+        svg.appendChild(create("text", { x: section.x + 28, y: section.y + 74, fill: "#9fb0c2", "font-size": "12", "font-weight": "700" }, section.subtitle));
+        const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
+        edges.forEach(([from, to, dashed]) => {
+          svg.appendChild(create("path", {
+            d: route(nodeMap[from], nodeMap[to]),
+            fill: "none",
+            stroke: section.color,
+            "stroke-width": dashed ? "1.8" : "2.1",
+            "stroke-dasharray": dashed ? "6 8" : "0",
+            opacity: dashed ? "0.45" : "0.72",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "marker-end": "url(#arrow)"
+          }));
+        });
+        nodes.forEach((n) => {
+          svg.appendChild(create("rect", {
+            x: n.x, y: n.y, width: BOX_W, height: BOX_H, rx: "18",
+            fill: n.core ? section.coreFill : section.nodeFill,
+            stroke: n.core ? "#f5c96b" : section.color,
+            "stroke-width": n.core ? "2" : "1.2",
+            filter: n.core ? "url(#coreGlow)" : "url(#shadow)"
+          }));
+          svg.appendChild(create("text", { x: n.x + BOX_W / 2, y: n.y + 39, fill: "#edf3f9", "font-size": n.core ? "16" : "14", "font-weight": "800", "text-anchor": "middle" }, n.label));
+        });
+      }
+      draw();
+    </script>
+  </body>
+</html>

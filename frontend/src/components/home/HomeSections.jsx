@@ -6,6 +6,20 @@ function formatPrice(value) {
   return Number(value || 0).toLocaleString();
 }
 
+function handleCardKeyDown(event, onActivate) {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  onActivate();
+}
+
+function buildHomeCardTags(lodging, idx) {
+  const tags = [];
+  if ((idx % 3) === 0) tags.push('빠른 예약');
+  if (Number(lodging.rating || 0) >= 4.8 || idx % 2 === 0) tags.push('평점 우수');
+  if (Number(lodging.pricePerNight || 0) <= 120000) tags.push('가성비');
+  return tags.slice(0, 2);
+}
+
 export function buildImageVariant(url, seedSuffix) {
   if (!url) return url;
 
@@ -24,7 +38,14 @@ export function buildImageVariant(url, seedSuffix) {
 
 function PromoEventCard({ banner }) {
   return (
-    <article style={s.promoItem} className="tz-lift-soft tz-promo-card" onClick={banner.onClick}>
+    <article
+      style={s.promoItem}
+      className="tz-lift-soft tz-promo-card tz-focus-card"
+      onClick={banner.onClick}
+      onKeyDown={(event) => handleCardKeyDown(event, banner.onClick)}
+      role="link"
+      tabIndex={0}
+    >
       <div style={{ ...s.promoVisualShell, background: banner.gradient }}>
         <div>
           <p style={s.promoLead}>{banner.lead}</p>
@@ -94,7 +115,21 @@ export function HorizontalLodgingRow({ title, cards, onMove, onOpenAll }) {
         <button style={{ ...s.floatArrowBtn, ...s.floatArrowLeft }} onClick={() => scrollByAmount(-760)} aria-label="이전 숙소">‹</button>
         <div ref={railRef} style={s.rail} className="tz-horizontal" onWheel={handleWheel}>
           {cards.map((lodging, idx) => (
-            <article key={lodging.cardKey} style={s.railCard} className="tz-lift-soft" onClick={() => onMove(lodging.lodgingId)}>
+            (() => {
+              const homeTags = buildHomeCardTags(lodging, idx);
+              return (
+            <article
+              key={lodging.cardKey}
+              style={s.railCard}
+              className="tz-lift-soft tz-focus-card"
+              onClick={() => onMove(lodging.lodgingId)}
+              onKeyDown={(event) => {
+                if (event.currentTarget !== event.target) return;
+                handleCardKeyDown(event, () => onMove(lodging.lodgingId));
+              }}
+              role="link"
+              tabIndex={0}
+            >
               <div style={s.railImgWrap}>
                 <img src={lodging.thumbnailUrl} alt={lodging.name} style={s.railImg} />
                 <span style={s.railBadge}>게스트 선호</span>
@@ -114,8 +149,17 @@ export function HorizontalLodgingRow({ title, cards, onMove, onOpenAll }) {
               <div style={s.railBody}>
                 <p style={s.railName}>{lodging.region}의 {lodging.name}</p>
                 <p style={s.railMeta}>총액 ₩{formatPrice(lodging.pricePerNight + idx * 2700)} · ★{(4.7 + (idx % 5) * 0.06).toFixed(2)}</p>
+                {homeTags.length ? (
+                  <div style={s.railTagRow}>
+                    {homeTags.map((tag) => (
+                      <span key={`${lodging.cardKey}-${tag}`} style={s.railTag}>{tag}</span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </article>
+              );
+            })()
           ))}
 
           <button style={s.railTail} onClick={onOpenAll}>
@@ -197,6 +241,23 @@ const s = {
   railBody: { padding: '9px 4px 0' },
   railName: { margin: '0 0 4px', fontSize: '16px', color: '#2B2B2B', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   railMeta: { margin: 0, fontSize: '13px', color: '#747474', fontWeight: 600 },
+  railTagRow: {
+    display: 'flex',
+    gap: '6px',
+    flexWrap: 'wrap',
+    marginTop: '8px',
+  },
+  railTag: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    borderRadius: '999px',
+    background: '#F7F7F8',
+    border: '1px solid #ECECEC',
+    color: '#5A5A5A',
+    fontSize: '11px',
+    fontWeight: 700,
+    padding: '5px 8px',
+  },
   railTail: {
     width: '210px',
     height: '225px',

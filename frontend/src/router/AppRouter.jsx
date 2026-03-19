@@ -42,6 +42,11 @@ function Layout() {
 
 const HomePage = lazy(() => import('../pages/common/HomePage'));
 const LoginPage = lazy(() => import('../pages/common/LoginPage'));
+const FindIdPage = lazy(() => import('../pages/common/FindIdPage'));
+const FindPasswordPage = lazy(() => import('../pages/common/FindPasswordPage'));
+const HostApplyPage = lazy(() => import('../pages/common/HostApplyPage'));
+const HostApplyFormPage = lazy(() => import('../pages/common/HostApplyFormPage'));
+const HostApplyPendingPage = lazy(() => import('../pages/common/HostApplyPendingPage'));
 const SignupPage = lazy(() => import('../pages/common/SignupPage'));
 const MyPage = lazy(() => import('../pages/common/MyPage'));
 const AttendancePage = lazy(() => import('../pages/common/AttendancePage'));
@@ -80,11 +85,14 @@ const SellerLodgingEditPage = lazy(() => import('../pages/seller/SellerLodgingEd
 const SellerLodgingListPage = lazy(() => import('../pages/seller/SellerLodgingListPage'));
 const SellerReservationListPage = lazy(() => import('../pages/seller/SellerReservationListPage'));
 const SellerInquiryPage = lazy(() => import('../pages/seller/SellerInquiryPage'));
+const SellerInquiryChatPage = lazy(() => import('../pages/seller/SellerInquiryChatPage'));
 
 const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage'));
 const AdminUserListPage = lazy(() => import('../pages/admin/AdminUserListPage'));
 const AdminSellerListPage = lazy(() => import('../pages/admin/AdminSellerListPage'));
 const AdminInquiryListPage = lazy(() => import('../pages/admin/AdminInquiryListPage'));
+const AdminRewardsPage = lazy(() => import('../pages/admin/AdminRewardsPage'));
+const AdminEventsPage = lazy(() => import('../pages/admin/AdminEventsPage'));
 
 function RouteFallback() {
   return (
@@ -102,6 +110,11 @@ export default function AppRouter() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/find-id" element={<FindIdPage />} />
+          <Route path="/find-password" element={<FindPasswordPage />} />
+          <Route path="/host/apply" element={<ProtectedRoute allowedRoles={[ROLES.USER]}><HostApplyPage /></ProtectedRoute>} />
+          <Route path="/host/apply/form" element={<ProtectedRoute allowedRoles={[ROLES.USER]}><HostApplyFormPage /></ProtectedRoute>} />
+          <Route path="/host/apply/pending" element={<ProtectedRoute allowedRoles={[ROLES.USER]}><HostApplyPendingPage /></ProtectedRoute>} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/lodgings" element={<LodgingListPage />} />
           <Route path="/lodgings/:lodgingId" element={<LodgingDetailPage />} />
@@ -139,11 +152,14 @@ export default function AppRouter() {
           <Route path="/seller/lodgings/:lodgingId/edit" element={<ProtectedRoute allowedRoles={[ROLES.SELLER]}><SellerLodgingEditPage /></ProtectedRoute>} />
           <Route path="/seller/reservations" element={<ProtectedRoute allowedRoles={[ROLES.SELLER]}><SellerReservationListPage /></ProtectedRoute>} />
           <Route path="/seller/inquiries" element={<ProtectedRoute allowedRoles={[ROLES.SELLER]}><SellerInquiryPage /></ProtectedRoute>} />
+          <Route path="/seller/inquiries/:inquiryId" element={<ProtectedRoute allowedRoles={[ROLES.SELLER]}><SellerInquiryChatPage /></ProtectedRoute>} />
 
           <Route path="/admin" element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminUserListPage /></ProtectedRoute>} />
           <Route path="/admin/sellers" element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminSellerListPage /></ProtectedRoute>} />
           <Route path="/admin/inquiries" element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminInquiryListPage /></ProtectedRoute>} />
+          <Route path="/admin/rewards" element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminRewardsPage /></ProtectedRoute>} />
+          <Route path="/admin/events" element={<ProtectedRoute allowedRoles={[ROLES.ADMIN]}><AdminEventsPage /></ProtectedRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

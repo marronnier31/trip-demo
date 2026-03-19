@@ -23,7 +23,7 @@ export default function SpacesPage() {
         <div style={s.inner}>
           <p style={s.eyebrow}>SPACE BOOKING</p>
           <h1 style={s.title}>공간대여</h1>
-          <p style={s.desc}>회의, 촬영, 파티, 클래스 목적의 공간을 시간 단위로 볼 수 있는 결과형 페이지입니다. 지금은 프론트 mock 기준입니다.</p>
+          <p style={s.desc}>회의, 촬영, 파티, 클래스 목적의 공간을 시간 단위로 비교할 수 있는 결과형 페이지입니다.</p>
           <div style={s.actions}>
             <Link to="/support" style={s.primaryBtn}>공간 제휴 문의</Link>
             <Link to="/events" style={s.secondaryBtn}>프로모션 보기</Link>

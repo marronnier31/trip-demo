@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TripZone Role IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="doc-shell">
+      <header class="sub-hero">
+        <a class="back-link" href="./usecases.html">→ 관계 흐름도 보기</a>
+        <p class="eyebrow">Role IA</p>
+        <h1>역할별 화면 구조</h1>
+        <p class="hero-desc">스케치에 있던 박스 구조를 읽기 쉬운 IA 카드 형태로 다시 정리했습니다.</p>
+      </header>
+
+      <main class="content stacked">
+        <section class="section-card role-theme-user">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">01</p>
+              <h2>일반 사용자</h2>
+            </div>
+            <span class="theme-pill user">User</span>
+          </div>
+          <div class="ia-columns">
+            <article class="ia-column">
+              <h3>홈</h3>
+            </article>
+            <article class="ia-column">
+              <h3>로그인 · 회원가입</h3>
+              <ul>
+                <li>로그인</li>
+                <li>회원가입</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>숙소</h3>
+              <ul>
+                <li>숙소 목록</li>
+                <li>숙소 상세</li>
+                <li>예약 페이지</li>
+                <li>예약 완료</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>프로모션 · 이벤트</h3>
+              <ul>
+                <li>프로모션 목록</li>
+                <li>프로모션 상세</li>
+                <li>이벤트 목록</li>
+                <li>이벤트 상세</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>마이 페이지</h3>
+              <ul>
+                <li>예약 내역</li>
+                <li>문의 내역</li>
+                <li>찜 목록</li>
+                <li>쿠폰함</li>
+                <li>마일리지</li>
+                <li>출석 체크</li>
+                <li>혜택 안내</li>
+                <li>최근 본 숙소</li>
+                <li>설정</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>문의 작성</h3>
+              <ul>
+                <li>문의 등록</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-card role-theme-seller">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">02</p>
+              <h2>호스트 · 셀러</h2>
+            </div>
+            <span class="theme-pill seller">Seller</span>
+          </div>
+          <div class="ia-columns">
+            <article class="ia-column">
+              <h3>셀러 대시보드</h3>
+              <ul>
+                <li>통계 요약</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>숙소 관리</h3>
+              <ul>
+                <li>숙소 목록</li>
+                <li>숙소 등록</li>
+                <li>숙소 수정</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>예약 관리</h3>
+              <ul>
+                <li>예약 목록</li>
+                <li>예약 확인 · 취소</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>문의 관리</h3>
+              <ul>
+                <li>문의 목록</li>
+                <li>실시간 채팅</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>호스트 신청</h3>
+              <ul>
+                <li>신청서 작성</li>
+                <li>승인 대기</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+        <section class="section-card role-theme-admin">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">03</p>
+              <h2>관리자</h2>
+            </div>
+            <span class="theme-pill admin">Admin</span>
+          </div>
+          <div class="ia-columns">
+            <article class="ia-column">
+              <h3>관리자 대시보드</h3>
+              <ul>
+                <li>전체 현황</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>회원 관리</h3>
+              <ul>
+                <li>회원 목록</li>
+                <li>등급 관리</li>
+                <li>활성 · 비활성 처리</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>호스트 승인</h3>
+              <ul>
+                <li>신청 목록</li>
+                <li>승인 처리</li>
+                <li>반려 처리</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>문의 처리</h3>
+              <ul>
+                <li>문의 목록</li>
+                <li>답변 등록</li>
+                <li>문의 종료</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>쿠폰 · 마일리지</h3>
+              <ul>
+                <li>쿠폰 발급</li>
+                <li>마일리지 조정</li>
+              </ul>
+            </article>
+            <article class="ia-column">
+              <h3>이벤트 관리</h3>
+              <ul>
+                <li>이벤트 등록</li>
+                <li>이벤트 수정</li>
+                <li>상태 변경</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

@@ -177,6 +177,11 @@ export default function LoginPage() {
             <button type="submit" style={s.submitBtn}>로그인</button>
           </form>
 
+          <div style={s.helperLinks}>
+            <Link to="/find-id" style={s.helperLink}>아이디 찾기</Link>
+            <Link to="/find-password" style={s.helperLink}>비밀번호 찾기</Link>
+          </div>
+
           <p style={s.signup}>계정이 없으신가요? <Link to="/signup">회원가입</Link></p>
         </div>
       </div>
@@ -321,6 +326,19 @@ const s = {
     fontSize: '15px',
     fontWeight: 800,
     cursor: 'pointer',
+  },
+  helperLinks: {
+    marginTop: '14px',
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: '10px 14px',
+  },
+  helperLink: {
+    color: '#E8484A',
+    fontSize: '13px',
+    fontWeight: 700,
+    textDecoration: 'none',
   },
   signup: { textAlign: 'center', marginTop: '14px', fontSize: '13px', color: '#5E5E5E' },
 };

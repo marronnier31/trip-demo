@@ -56,13 +56,25 @@ export default function SupportCenterPage() {
 
   const isSeller = user?.role === ROLES.SELLER;
   const isTraveler = user?.role === ROLES.USER;
-  const roleBadge = isSeller ? '현재 로그인: 숙소 등록자' : isTraveler ? '현재 로그인: 여행객' : '현재 로그인: 일반 사용자';
-
+  const isAdmin = user?.role === ROLES.ADMIN;
+  const roleBadge = isSeller
+    ? '현재 로그인: 숙소 등록자'
+    : isTraveler
+      ? '현재 로그인: 여행객'
+      : isAdmin
+        ? '현재 로그인: 관리자'
+        : '현재 로그인: 일반 사용자';
+  const inquiryHistoryPath = isSeller ? '/seller/inquiries' : isAdmin ? '/admin/inquiries' : '/my/inquiries';
   return (
     <div style={s.page}>
       <style>{`
         @media (max-width: 820px) {
           .tz-support-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 920px) {
+          .tz-support-hero-metrics {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
       <section style={s.hero}>
@@ -105,7 +117,7 @@ export default function SupportCenterPage() {
               <p style={s.actionDesc}>로그인/결제/오류 등 서비스 공통 이슈는 역할과 관계없이 접수할 수 있습니다.</p>
               <div style={s.commonActions}>
                 <Link to="/inquiry/create?type=COMMON_TO_ADMIN" style={s.actionBtn}>공통 문의 작성</Link>
-                <Link to={isSeller ? '/seller/inquiries' : '/my/inquiries'} style={s.actionGhostBtn}>문의 내역 보기</Link>
+                <Link to={inquiryHistoryPath} style={s.actionGhostBtn}>문의 내역 보기</Link>
               </div>
             </div>
           </div>

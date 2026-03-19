@@ -9,6 +9,7 @@ const TAB_CONFIG = [
   {
     key: 'domestic',
     label: '국내 숙소',
+    route: '/lodgings',
     placeholder: '여행지, 역, 랜드마크, 숙소명 검색',
     emptyText: '국내 숙소 관련 검색 결과가 없습니다.',
     summaryFallback: '지역, 날짜, 인원을 선택해보세요',
@@ -16,6 +17,7 @@ const TAB_CONFIG = [
   {
     key: 'overseas',
     label: '해외 숙소',
+    route: '/overseas',
     placeholder: '도시, 지역, 관광지, 해외 숙소 검색',
     emptyText: '해외 숙소 관련 검색 결과가 없습니다.',
     summaryFallback: '도시, 날짜, 인원을 선택해보세요',
@@ -23,6 +25,7 @@ const TAB_CONFIG = [
   {
     key: 'package',
     label: '패키지 여행',
+    route: '/packages',
     placeholder: '여행지, 상품명, 테마 패키지 검색',
     emptyText: '패키지 여행 관련 검색 결과가 없습니다.',
     summaryFallback: '여행 상품, 날짜, 인원을 선택해보세요',
@@ -476,7 +479,7 @@ export default function SearchBar({ defaultKeyword = '', defaultRegion = '', def
     if (checkOut) q.set('checkOut', checkOut);
     q.set('guests', String(clamp(guests, 1, 30)));
     q.set('tab', tab.key);
-    navigate(`/lodgings?${q.toString()}`);
+    navigate(`${tab.route}?${q.toString()}`);
   };
 
   return (

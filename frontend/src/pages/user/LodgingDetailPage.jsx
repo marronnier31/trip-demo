@@ -12,6 +12,8 @@ import { createReview, deleteReview, getReviewEligibility, getReviewSummary, get
 import { ROLES } from '../../constants/roles';
 import { C, MAX_WIDTH } from '../../styles/tokens';
 
+const DETAIL_MAX_WIDTH = '1320px';
+
 function calcNights(checkIn, checkOut) {
   if (!checkIn || !checkOut) return 0;
   const [inY, inM, inD] = String(checkIn).split('-').map(Number);
@@ -60,9 +62,21 @@ function getPolicyRows(lodging) {
 
 function getLocationNotes(lodging) {
   return [
-    `${lodging?.region || '주요 지역'} 중심 이동이 편리한 위치`,
-    '편의점/카페 도보권',
-    '주요 관광지 차량 10~20분 내 이동 가능',
+    {
+      eyebrow: 'ACCESS',
+      title: `${lodging?.region || '주요 지역'} 중심 이동`,
+      desc: '체크인 후 바로 이동 동선을 잡기 좋은 위치입니다.',
+    },
+    {
+      eyebrow: 'NEARBY',
+      title: '편의점 · 카페 도보권',
+      desc: '간단한 식음료나 필요한 물품을 가까이에서 해결할 수 있습니다.',
+    },
+    {
+      eyebrow: 'DRIVE',
+      title: '주요 관광지 10~20분',
+      desc: '차량 기준으로 주요 스팟까지 무리 없이 이동 가능한 거리입니다.',
+    },
   ];
 }
 
@@ -159,11 +173,17 @@ function getRoomOptions(lodging) {
 
 function getQuickFacts(lodging) {
   return [
+    { label: '혜택 적용', value: '쿠폰 · 포인트 가능' },
     { label: '체크인/체크아웃', value: '15:00 · 11:00' },
     { label: '기준/최대 인원', value: '2명 / 4명' },
     { label: '숙소 유형', value: '프라이빗 스테이' },
-    { label: '예약 혜택', value: '쿠폰 · 포인트 적용 가능' },
   ];
+}
+
+function getReviewTone(summary) {
+  if (summary.averageRating >= 4.8) return '만족도 높은 후기 비중이 큰 숙소입니다.';
+  if (summary.averageRating >= 4.5) return '전반적으로 안정적인 평가를 받고 있습니다.';
+  return '리뷰 내용을 꼼꼼히 확인하고 선택해 보세요.';
 }
 
 export default function LodgingDetailPage() {
@@ -400,6 +420,7 @@ export default function LodgingDetailPage() {
 
   const reviewSummary = getReviewSummary(lodgingId);
   const reviewEligibility = getReviewEligibility(user, lodgingId);
+  const reviewTone = getReviewTone(reviewSummary);
   const sortedReviews = [...reviews].sort((a, b) => {
     if (reviewSort === 'rating') return b.rating - a.rating;
     if (reviewSort === 'photo') return (b.imageUrls?.length || 0) - (a.imageUrls?.length || 0);
@@ -432,9 +453,18 @@ export default function LodgingDetailPage() {
           }
           .tz-lodging-sidebar {
             width: 100% !important;
+            position: static !important;
+            top: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
           }
           .tz-lodging-wrap {
             padding: 28px 16px 44px !important;
+          }
+        }
+        @media (max-width: 720px) {
+          .tz-lodging-quickinfo {
+            grid-template-columns: 1fr !important;
           }
         }
         @media (max-width: 560px) {
@@ -465,20 +495,19 @@ export default function LodgingDetailPage() {
                 </button>
               ))}
             </div>
-            <button type="button" style={s.sectionNavCta} onClick={handleBook}>
-              예약하기
-            </button>
           </div>
         </div>
       ) : null}
       {/* ── 이미지 갤러리 ── */}
-      <div style={s.gallery} className="tz-lodging-gallery">
-        <div style={s.galleryMain}>
-          <img src={lodging.thumbnailUrl} alt={lodging.name} style={s.mainImg} className="tz-lodging-main-img" />
-        </div>
-        <div style={s.gallerySubs} className="tz-lodging-gallery-subs">
-          <img src={`https://picsum.photos/seed/${lodgingId}a/400/300`} alt="" style={s.subImg} className="tz-lodging-sub-img" />
-          <img src={`https://picsum.photos/seed/${lodgingId}b/400/300`} alt="" style={s.subImg} className="tz-lodging-sub-img" />
+      <div style={s.galleryShell} className="tz-gallery-wrap">
+        <div style={s.gallery} className="tz-lodging-gallery">
+          <div style={s.galleryMain}>
+            <img src={lodging.thumbnailUrl} alt={lodging.name} style={s.mainImg} className="tz-lodging-main-img" />
+          </div>
+          <div style={s.gallerySubs} className="tz-lodging-gallery-subs">
+            <img src={`https://picsum.photos/seed/${lodgingId}a/400/300`} alt="" style={s.subImg} className="tz-lodging-sub-img" />
+            <img src={`https://picsum.photos/seed/${lodgingId}b/400/300`} alt="" style={s.subImg} className="tz-lodging-sub-img" />
+          </div>
         </div>
       </div>
 
@@ -488,39 +517,45 @@ export default function LodgingDetailPage() {
           {/* 좌측 메인 */}
           <div style={s.main}>
             <div ref={overviewSectionRef} />
-            <p style={s.region}>{lodging.region}</p>
-            <h1 style={s.name}>{lodging.name}</h1>
-            <div style={s.highlightRow}>
-              {highlights.map((item) => (
-                <span key={item} style={s.highlightChip}>{item}</span>
-              ))}
-            </div>
-            <div style={s.meta}>
-              <span>★ {lodging.rating}</span>
-              <span style={s.dot}>·</span>
-              <button type="button" style={s.metaLinkBtn} onClick={() => moveToSection(reviewSectionRef, 'review')}>
-                {lodging.reviewCount}개 후기
-              </button>
-              <span style={s.dot}>·</span>
-              <button type="button" style={s.metaLinkBtn} onClick={() => moveToSection(locationSectionRef, 'location')}>
-                {lodging.address}
-              </button>
-            </div>
-            <div style={s.quickInfoGrid}>
-              {quickFacts.map((fact) => (
-                <div key={fact.label} style={s.quickInfoItem}>
-                  <span style={s.quickInfoLabel}>{fact.label}</span>
-                  <strong style={s.quickInfoValue}>{fact.value}</strong>
+            <div style={s.overviewCard}>
+              <div style={s.overviewTopRow}>
+                <div>
+                  <p style={s.region}>{lodging.region}</p>
+                  <h1 style={s.name}>{lodging.name}</h1>
+                  <div style={s.highlightRow}>
+                    {highlights.map((item) => (
+                      <span key={item} style={s.highlightChip}>{item}</span>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-            <div style={s.actionRow}>
-              <button type="button" className="tz-action-btn" style={{ ...s.actionBtn, ...(liked ? s.actionBtnActive : null) }} onClick={() => toggleWishlist(lodging)}>
-                {liked ? '♥ 찜 완료' : '♡ 찜하기'}
-              </button>
-              <button type="button" className="tz-action-btn" style={s.actionBtn} onClick={handleShare}>
-                {shareMessage || '공유하기'}
-              </button>
+                <div style={s.actionRow}>
+                  <button type="button" className="tz-action-btn" style={{ ...s.actionBtn, ...(liked ? s.actionBtnActive : null) }} onClick={() => toggleWishlist(lodging)}>
+                    {liked ? '♥ 찜 완료' : '♡ 찜하기'}
+                  </button>
+                  <button type="button" className="tz-action-btn" style={s.actionBtn} onClick={handleShare}>
+                    {shareMessage || '공유하기'}
+                  </button>
+                </div>
+              </div>
+              <div style={s.metaCard}>
+                <div style={s.metaPrimary}>
+                  <span style={s.metaRating}>★ {lodging.rating}</span>
+                  <button type="button" style={s.metaLinkBtn} onClick={() => moveToSection(reviewSectionRef, 'review')}>
+                    후기 {lodging.reviewCount}개
+                  </button>
+                </div>
+                <button type="button" style={s.metaAddressBtn} onClick={() => moveToSection(locationSectionRef, 'location')}>
+                  {lodging.address}
+                </button>
+              </div>
+              <div style={s.quickInfoGrid} className="tz-lodging-quickinfo">
+                {quickFacts.map((fact) => (
+                  <div key={fact.label} style={s.quickInfoItem}>
+                    <span style={s.quickInfoLabel}>{fact.label}</span>
+                    <strong style={s.quickInfoValue}>{fact.value}</strong>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <hr style={s.hr} />
@@ -529,9 +564,7 @@ export default function LodgingDetailPage() {
               <div style={s.sectionHeaderRow}>
                 <div>
                   <h2 style={s.sectionTitle}>객실 선택</h2>
-                  <p style={s.sectionIntro}>투숙 인원과 선호 옵션에 맞는 객실을 먼저 골라보세요.</p>
                 </div>
-                <div style={s.roomGuide}>실제 예약 단위는 추후 객실 API로 연결됩니다.</div>
               </div>
               {roomOptions.map((room) => {
                 const selected = selectedRoom?.roomId === room.roomId;
@@ -563,7 +596,7 @@ export default function LodgingDetailPage() {
                         {selected ? <span style={s.roomStock}>현재 선택된 객실</span> : null}
                       </div>
                       <div style={s.roomFooter}>
-                        <div style={s.roomMetaText}>선택 시 우측 예약 카드와 총액이 함께 갱신됩니다.</div>
+                        <div style={s.roomMetaText}>선택 시 오른쪽 예약 정보와 금액이 함께 바뀝니다.</div>
                         <button
                           type="button"
                           style={{ ...s.roomSelectBtn, ...(selected ? s.roomSelectBtnActive : null) }}
@@ -584,7 +617,6 @@ export default function LodgingDetailPage() {
               <div style={s.sectionHeaderRow}>
                 <div>
                   <h2 style={s.sectionTitle}>숙소 소개</h2>
-                  <p style={s.sectionIntro}>예약 전에 분위기와 이용 흐름을 먼저 확인할 수 있도록 정리했습니다.</p>
                 </div>
               </div>
               <div style={s.introductionQuote}>{lodging.description}</div>
@@ -601,7 +633,6 @@ export default function LodgingDetailPage() {
               <div style={s.sectionHeaderRow}>
                 <div>
                   <h2 style={s.sectionTitle}>서비스 및 편의시설</h2>
-                  <p style={s.sectionIntro}>기본 체류 편의부터 체크인 동선과 관련된 항목까지 한 번에 확인하세요.</p>
                 </div>
               </div>
               <div style={s.amenityList}>
@@ -641,48 +672,35 @@ export default function LodgingDetailPage() {
 
           {/* 우측 정보 패널 */}
           <div style={s.sidebar} className="tz-lodging-sidebar">
-            <div style={s.sidePanel}>
-              <div style={s.sideInfoHeader}>
-                <p style={s.sideInfoTitle}>최대 10% 쿠폰</p>
-                <span style={{ ...s.sideInfoBadge, background: '#EEF6FF', color: '#2563EB', borderColor: '#BFDBFE' }}>혜택</span>
+            <div style={s.bookingCard}>
+              <div style={s.bookingCardTop}>
+                <div style={s.sideInfoHeader}>
+                  <p style={s.sideInfoTitle}>선택한 객실</p>
+                  <span style={{ ...s.sideInfoBadge, background: '#EEF2FF', color: '#4338CA', borderColor: '#C7D2FE' }}>객실</span>
+                </div>
+                <strong style={s.sideRoomName}>{selectedRoom?.name}</strong>
+                <p style={s.sideRoomDesc}>최대 {selectedRoom?.maxGuests}명 · {selectedRoom?.stockText}</p>
               </div>
-              <p style={s.sideBenefitTitle}>적용 가능한 쿠폰 혜택을 예약 단계에서 확인하세요.</p>
-              <ul style={s.sideInfoList}>
-                {benefitFacts.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div style={s.sidePanel}>
-              <div style={s.sideInfoHeader}>
-                <p style={s.sideInfoTitle}>선택한 객실</p>
-                <span style={{ ...s.sideInfoBadge, background: '#EEF2FF', color: '#4338CA', borderColor: '#C7D2FE' }}>객실</span>
+
+              <div style={s.bookingPriceBox}>
+                <span style={s.bookingPriceLabel}>1박 기준 금액</span>
+                <strong style={s.bookingPriceValue}>{selectedRoom?.pricePerNight?.toLocaleString()}원</strong>
+                <p style={s.bookingPriceHint}>쿠폰과 포인트는 예약 단계에서 함께 적용할 수 있습니다.</p>
               </div>
-              <strong style={s.sideRoomName}>{selectedRoom?.name}</strong>
-              <p style={s.sideRoomDesc}>최대 {selectedRoom?.maxGuests}명 · {selectedRoom?.stockText}</p>
-              <p style={s.sideRoomDesc}>객실별 재고와 옵션은 나중에 판매자 객실 API로 교체됩니다.</p>
-            </div>
-            <div style={s.sidePanel}>
-              <div style={s.sideInfoHeader}>
-                <p style={s.sideInfoTitle}>예약 전 확인해 주세요</p>
-                <span style={s.sideInfoBadge}>필수</span>
+
+              <div style={s.bookingActionRow}>
+                <button type="button" style={s.bookingPrimaryBtn} onClick={handleBook}>예약하기</button>
+                <button type="button" style={s.bookingSecondaryBtn} onClick={() => moveToSection(roomSectionRef, 'room')}>객실 다시 보기</button>
               </div>
-              <ul style={s.sideInfoList}>
-                <li>체크인 3일 전까지 무료 취소가 가능합니다.</li>
-                <li>결제 완료 후 즉시 예약이 확정됩니다.</li>
-                <li>현장 결제 없이 예약 단계에서 총액이 확정됩니다.</li>
-              </ul>
-            </div>
-            <div style={s.sidePanel}>
-              <div style={s.sideInfoHeader}>
-                <p style={s.sideInfoTitle}>이 숙소의 혜택</p>
-                <span style={{ ...s.sideInfoBadge, background: '#EEF6FF', color: '#2563EB', borderColor: '#BFDBFE' }}>혜택</span>
+
+              <div style={s.bookingPolicyBox}>
+                <p style={s.bookingPolicyTitle}>예약 전 확인</p>
+                <ul style={s.sideInfoList}>
+                  <li>체크인 3일 전까지 무료 취소가 가능합니다.</li>
+                  <li>결제 완료 후 즉시 예약이 확정됩니다.</li>
+                  <li>예약 단계에서 최종 금액을 한 번 더 확인할 수 있습니다.</li>
+                </ul>
               </div>
-              <ul style={s.sideInfoList}>
-                <li>리뷰 작성 시 포인트 적립 예정</li>
-                <li>등급별 추가 적립률 적용 가능</li>
-                <li>쿠폰/포인트는 예약 페이지에서 함께 적용할 수 있습니다.</li>
-              </ul>
             </div>
           </div>
         </div>
@@ -706,7 +724,11 @@ export default function LodgingDetailPage() {
             <p style={s.mapCoord}>위도 {lodging.latitude} / 경도 {lodging.longitude}</p>
             <div style={s.locationNoteListWide}>
               {locationNotes.map((note) => (
-                <div key={note} style={s.locationNoteItem}>{note}</div>
+                <article key={note.title} style={s.locationNoteCard}>
+                  <p style={s.locationNoteEyebrow}>{note.eyebrow}</p>
+                  <h3 style={s.locationNoteTitle}>{note.title}</h3>
+                  <p style={s.locationNoteDesc}>{note.desc}</p>
+                </article>
               ))}
             </div>
           </div>
@@ -743,6 +765,7 @@ export default function LodgingDetailPage() {
                   <span style={s.reviewSummaryText}>{reviewSummary.photoReviewCount}개</span>
                 </div>
               </div>
+              <div style={s.reviewToneBox}>{reviewTone}</div>
 
               <ReviewComposer
                 user={user}
@@ -840,6 +863,11 @@ export default function LodgingDetailPage() {
 }
 
 const s = {
+  galleryShell: {
+    maxWidth: DETAIL_MAX_WIDTH,
+    margin: '0 auto',
+    padding: '24px 24px 0',
+  },
   gallery: {
     display: 'grid',
     gridTemplateColumns: '2fr 1fr',
@@ -847,18 +875,53 @@ const s = {
     maxHeight: '520px',
     overflow: 'hidden',
     background: C.bgGray,
+    borderRadius: '30px',
+    border: '1px solid rgba(17,24,39,0.06)',
+    boxShadow: '0 18px 44px rgba(15,23,42,0.08)',
   },
   galleryMain: { overflow: 'hidden' },
   mainImg: { width: '100%', height: '480px', objectFit: 'cover', display: 'block' },
   gallerySubs: { display: 'flex', flexDirection: 'column', gap: '8px' },
   subImg: { width: '100%', height: '236px', objectFit: 'cover', display: 'block' },
-  wrap: { maxWidth: MAX_WIDTH, margin: '0 auto', padding: '40px 24px 64px' },
-  content: { display: 'flex', gap: '48px', alignItems: 'flex-start', justifyContent: 'space-between' },
+  wrap: { maxWidth: DETAIL_MAX_WIDTH, margin: '0 auto', padding: '28px 24px 64px' },
+  content: { display: 'flex', gap: '36px', alignItems: 'flex-start', justifyContent: 'space-between' },
   main: { flex: '1 1 auto', minWidth: 0 },
   fullWidthArea: { marginTop: '8px', display: 'grid', gap: '8px' },
-  region: { fontSize: '14px', fontWeight: '700', color: '#5B6470', margin: '0 0 10px' },
-  name: { fontSize: '30px', fontWeight: '700', color: C.text, margin: '0 0 10px', lineHeight: 1.22 },
-  highlightRow: { display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' },
+  overviewCard: {
+    padding: '28px',
+    borderRadius: '28px',
+    background: 'linear-gradient(145deg, #FFF9F5 0%, #FFFFFF 52%, #FAF7F4 100%)',
+    border: '1px solid #EEE4DE',
+    boxShadow: '0 18px 40px rgba(15,23,42,0.05)',
+  },
+  overviewTopRow: { display: 'flex', justifyContent: 'space-between', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' },
+  region: { fontSize: '12px', fontWeight: '800', letterSpacing: '0.12em', color: C.primary, margin: '0 0 12px' },
+  name: { fontSize: '36px', fontWeight: '800', color: C.text, margin: 0, lineHeight: 1.1 },
+  metaCard: {
+    marginTop: '18px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '14px',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    padding: '16px 18px',
+    borderRadius: '22px',
+    background: '#fff',
+    border: '1px solid #EEE4DE',
+  },
+  metaPrimary: { display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' },
+  metaRating: { fontSize: '18px', color: C.text, fontWeight: '800' },
+  metaAddressBtn: {
+    border: 'none',
+    background: '#F7F4F1',
+    padding: '10px 14px',
+    borderRadius: '999px',
+    color: '#4B5563',
+    fontSize: '13px',
+    fontWeight: '700',
+    cursor: 'pointer',
+  },
+  highlightRow: { display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '16px 0 0' },
   highlightChip: {
     fontSize: '11px',
     fontWeight: 800,
@@ -868,25 +931,24 @@ const s = {
     borderRadius: '999px',
     padding: '6px 10px',
   },
-  meta: { display: 'flex', gap: '7px', alignItems: 'center', fontSize: '15px', color: C.text, flexWrap: 'wrap', marginBottom: '2px' },
   metaLinkBtn: {
     border: 'none',
     background: 'transparent',
     padding: 0,
     margin: 0,
     color: '#24303C',
-    fontSize: '15px',
-    fontWeight: 700,
+    fontSize: '14px',
+    fontWeight: 800,
     cursor: 'pointer',
     textDecoration: 'underline',
     textDecorationColor: '#D6DADF',
     textUnderlineOffset: '3px',
   },
-  quickInfoGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '14px', marginTop: '18px' },
-  quickInfoItem: { borderTop: `2px solid ${C.borderLight}`, paddingTop: '12px' },
-  quickInfoLabel: { display: 'block', fontSize: '13px', color: '#66707C', fontWeight: 700, marginBottom: '6px' },
-  quickInfoValue: { fontSize: '16px', color: C.text, fontWeight: 800 },
-  actionRow: { display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' },
+  quickInfoGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px', marginTop: '18px' },
+  quickInfoItem: { borderRadius: '20px', padding: '18px', background: '#fff', border: '1px solid #EEE4DE', minHeight: '88px' },
+  quickInfoLabel: { display: 'block', fontSize: '12px', color: '#8A6F66', fontWeight: 800, marginBottom: '8px', letterSpacing: '0.04em' },
+  quickInfoValue: { fontSize: '17px', color: C.text, fontWeight: 800, lineHeight: 1.35 },
+  actionRow: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
   actionBtn: {
     border: `1px solid ${C.border}`,
     background: '#fff',
@@ -902,31 +964,22 @@ const s = {
     background: '#FFF1F1',
     color: '#C13A3D',
   },
-  dot: { color: C.textSub },
   hr: { border: 'none', borderTop: `1px solid ${C.borderLight}`, margin: '32px 0' },
   section: { marginBottom: '8px' },
   sectionHeaderRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', flexWrap: 'wrap', marginBottom: '16px' },
   sectionTitle: { fontSize: '22px', fontWeight: '700', color: C.text, margin: '0 0 16px' },
   sectionIntro: { margin: 0, fontSize: '15px', color: '#66707C', lineHeight: 1.65 },
-  roomGuide: {
-    fontSize: '13px',
-    color: '#5F6B76',
-    background: '#F8FAFC',
-    border: '1px solid #E5E7EB',
-    borderRadius: '999px',
-    padding: '8px 12px',
-    whiteSpace: 'nowrap',
-  },
   desc: { fontSize: '16px', lineHeight: '1.9', color: C.text, margin: 0 },
   introductionQuote: {
-    borderLeft: '3px solid #E5E7EB',
-    paddingLeft: '14px',
-    fontSize: '16px',
-    lineHeight: 1.85,
-    color: '#4B5563',
-    marginBottom: '18px',
+    borderLeft: '2px solid #D9C8BF',
+    paddingLeft: '12px',
+    fontSize: '18px',
+    lineHeight: 1.7,
+    color: '#2F3540',
+    fontWeight: 700,
+    marginBottom: '16px',
   },
-  introductionBody: { display: 'grid', gap: '14px' },
+  introductionBody: { display: 'grid', gap: '12px', maxWidth: '900px' },
   roomRow: {
     display: 'grid',
     gridTemplateColumns: '220px minmax(0, 1fr)',
@@ -993,43 +1046,44 @@ const s = {
     background: '#FFF1F1',
     color: '#C13A3D',
   },
-  amenityList: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
+  amenityList: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
   amenityItem: {
-    borderRadius: '12px',
-    background: '#F8F8F8',
-    border: `1px solid ${C.borderLight}`,
-    padding: '12px 14px',
+    borderRadius: '999px',
+    background: '#FFFCFA',
+    border: '1px solid #EEE4DE',
+    padding: '11px 15px',
     fontSize: '14px',
-    color: C.text,
+    color: '#3F3F46',
     fontWeight: 700,
+    boxShadow: '0 6px 16px rgba(15,23,42,0.04)',
   },
   policyList: { display: 'grid', gap: '10px' },
   policyRow: { display: 'flex', justifyContent: 'space-between', gap: '16px', paddingBottom: '10px', borderBottom: `1px solid ${C.borderLight}` },
   policyLabel: { fontSize: '14px', color: '#66707C', fontWeight: 700 },
   policyValue: { fontSize: '15px', color: C.text, fontWeight: 700, textAlign: 'right' },
-  guideSectionList: { display: 'grid', gap: '22px', marginTop: '22px' },
-  guideSection: { display: 'grid', gap: '12px' },
+  guideSectionList: { display: 'grid', gap: '16px', marginTop: '18px' },
+  guideSection: { display: 'grid', gap: '10px' },
   guideSectionTitle: { margin: 0, fontSize: '17px', color: C.text, fontWeight: 800 },
   guideNotice: {
     borderRadius: '14px',
     background: '#F8FAFC',
     border: '1px solid #E5E7EB',
-    padding: '14px 16px',
-    fontSize: '14px',
+    padding: '12px 14px',
+    fontSize: '13px',
     color: '#B45309',
     fontWeight: 700,
-    lineHeight: 1.7,
+    lineHeight: 1.6,
   },
   guideBulletList: {
     margin: 0,
     paddingLeft: '18px',
     display: 'grid',
-    gap: '10px',
+    gap: '8px',
   },
   guideBulletItem: {
-    fontSize: '15px',
+    fontSize: '14px',
     color: '#66707C',
-    lineHeight: 1.8,
+    lineHeight: 1.65,
   },
   reviewSectionHeader: { display: 'flex', justifyContent: 'space-between', gap: '18px', alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: '16px' },
   reviewInner: { maxWidth: '1080px', margin: '0 auto' },
@@ -1055,6 +1109,16 @@ const s = {
   reviewSummaryLabel: { fontSize: '13px', color: '#66707C', fontWeight: 700 },
   reviewSummaryText: { fontSize: '19px', color: C.text, fontWeight: 800 },
   reviewSummaryDivider: { width: '1px', height: '14px', background: C.borderLight },
+  reviewToneBox: {
+    marginBottom: '16px',
+    borderRadius: '14px',
+    background: '#FFF8EE',
+    border: '1px solid #FBD6A8',
+    padding: '12px 14px',
+    fontSize: '14px',
+    color: '#9A5B13',
+    fontWeight: 700,
+  },
   reviewSortRow: { display: 'flex', gap: '10px', flexWrap: 'wrap', margin: '14px 0 10px' },
   reviewSortBtn: {
     border: 'none',
@@ -1082,12 +1146,15 @@ const s = {
   },
   reviewEmptyTitle: { margin: '0 0 8px', fontSize: '18px', color: C.text, fontWeight: 800 },
   reviewEmptyDesc: { margin: 0, fontSize: '15px', color: '#66707C', lineHeight: 1.65 },
-  locationHeader: { maxWidth: '1120px', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' },
-  mapBox: { borderRadius: '24px', overflow: 'hidden', border: `1px solid ${C.borderLight}`, boxShadow: '0 8px 24px rgba(0,0,0,0.06)', maxWidth: '1080px', margin: '0 auto' },
-  mapCoord: { fontSize: '13px', color: '#66707C', margin: '12px auto 0', maxWidth: '1080px' },
+  locationHeader: { maxWidth: '1240px', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' },
+  mapBox: { borderRadius: '28px', overflow: 'hidden', border: `1px solid ${C.borderLight}`, boxShadow: '0 14px 32px rgba(15,23,42,0.08)', maxWidth: '1240px', margin: '0 auto' },
+  mapCoord: { fontSize: '13px', color: '#66707C', margin: '14px auto 0', maxWidth: '1240px' },
   locationNoteList: { display: 'grid', gap: '8px', marginTop: '14px' },
-  locationNoteListWide: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginTop: '16px', maxWidth: '1080px', marginLeft: 'auto', marginRight: 'auto' },
-  locationNoteItem: { fontSize: '14px', color: C.text, background: '#FAFAFA', borderRadius: '12px', padding: '10px 12px', border: `1px solid ${C.borderLight}` },
+  locationNoteListWide: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginTop: '18px', maxWidth: '1240px', marginLeft: 'auto', marginRight: 'auto' },
+  locationNoteCard: { background: 'linear-gradient(145deg, #FFF9F4 0%, #FFFFFF 52%, #F8F5F2 100%)', borderRadius: '22px', padding: '18px 18px 20px', border: '1px solid #EEE4DE', boxShadow: '0 12px 28px rgba(15,23,42,0.05)' },
+  locationNoteEyebrow: { margin: '0 0 8px', fontSize: '11px', letterSpacing: '0.12em', color: C.primary, fontWeight: 800 },
+  locationNoteTitle: { margin: '0 0 8px', fontSize: '18px', lineHeight: 1.3, color: C.text, fontWeight: 800 },
+  locationNoteDesc: { margin: 0, fontSize: '14px', lineHeight: 1.7, color: '#66707C' },
   inquiryBtn: {
     padding: '14px 28px',
     background: 'transparent',
@@ -1099,19 +1166,63 @@ const s = {
     cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
-  sidebar: { width: '360px', flexShrink: 0, position: 'sticky', top: '148px', alignSelf: 'flex-start' },
-  sidePanel: {
-    marginTop: '14px',
-    borderTop: `1px solid ${C.borderLight}`,
-    padding: '14px 4px 0',
+  sidebar: {
+    width: '360px',
+    flexShrink: 0,
+    position: 'sticky',
+    top: '120px',
+    alignSelf: 'flex-start',
+    maxHeight: 'calc(100vh - 136px)',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    paddingRight: '6px',
+    scrollbarGutter: 'stable',
   },
-  sideBenefitTitle: {
-    margin: '0 0 10px',
+  bookingCard: {
+    background: 'linear-gradient(145deg, #FFF8F3 0%, #FFFFFF 48%, #F7F4F1 100%)',
+    border: '1px solid #EEE4DE',
+    borderRadius: '28px',
+    padding: '22px',
+    boxShadow: '0 18px 40px rgba(15,23,42,0.08)',
+  },
+  bookingCardTop: { display: 'grid', gap: '4px' },
+  bookingPriceBox: {
+    marginTop: '18px',
+    padding: '18px',
+    borderRadius: '22px',
+    background: '#fff',
+    border: '1px solid #EEE4DE',
+  },
+  bookingPriceLabel: { display: 'block', margin: '0 0 8px', fontSize: '12px', color: '#8A6F66', fontWeight: 800, letterSpacing: '0.04em' },
+  bookingPriceValue: { display: 'block', fontSize: '30px', lineHeight: 1.1, color: C.text, fontWeight: 800 },
+  bookingPriceHint: { margin: '8px 0 0', fontSize: '13px', lineHeight: 1.65, color: '#66707C' },
+  bookingActionRow: { display: 'grid', gap: '10px', marginTop: '16px' },
+  bookingPrimaryBtn: {
+    border: 'none',
+    borderRadius: '999px',
+    background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)',
+    color: '#fff',
     fontSize: '15px',
-    color: C.text,
     fontWeight: 800,
-    lineHeight: 1.5,
+    padding: '14px 16px',
+    cursor: 'pointer',
   },
+  bookingSecondaryBtn: {
+    border: `1px solid ${C.border}`,
+    borderRadius: '999px',
+    background: '#fff',
+    color: C.text,
+    fontSize: '14px',
+    fontWeight: 700,
+    padding: '12px 16px',
+    cursor: 'pointer',
+  },
+  bookingPolicyBox: {
+    marginTop: '18px',
+    paddingTop: '18px',
+    borderTop: '1px solid #E9DED8',
+  },
+  bookingPolicyTitle: { margin: '0 0 10px', fontSize: '15px', color: C.text, fontWeight: 800 },
   sideRoomName: { display: 'block', margin: '0 0 8px', fontSize: '17px', color: C.text, fontWeight: 800 },
   sideRoomDesc: { margin: '0 0 6px', fontSize: '14px', color: '#66707C', lineHeight: 1.65 },
   sideInfoHeader: { display: 'flex', justifyContent: 'space-between', gap: '12px', alignItems: 'center', marginBottom: '10px' },
@@ -1125,10 +1236,13 @@ const s = {
     right: 0,
     zIndex: 2000,
     padding: '0 34px',
+    display: 'flex',
+    justifyContent: 'center',
   },
   sectionNavInner: {
-    maxWidth: '1180px',
-    margin: '0 auto',
+    width: 'fit-content',
+    maxWidth: 'min(100%, 760px)',
+    margin: 0,
     background: 'rgba(255,255,255,0.96)',
     backdropFilter: 'blur(12px)',
     border: `1px solid ${C.borderLight}`,
@@ -1137,17 +1251,16 @@ const s = {
     padding: '12px 22px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '24px',
+    justifyContent: 'center',
   },
-  sectionNavLinks: { display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-start', minWidth: 0, paddingLeft: '2px' },
+  sectionNavLinks: { display: 'flex', alignItems: 'center', gap: '18px', flexWrap: 'wrap', justifyContent: 'center', minWidth: 0 },
   sectionNavBtn: {
     border: 'none',
     background: 'transparent',
     color: '#5F6B76',
     fontSize: '16px',
     fontWeight: 800,
-    padding: '9px 12px',
+    padding: '9px 14px',
     borderRadius: '999px',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
@@ -1156,17 +1269,5 @@ const s = {
   sectionNavBtnActive: {
     background: '#FFF1F1',
     color: '#C13A3D',
-  },
-  sectionNavCta: {
-    border: 'none',
-    background: `linear-gradient(135deg, ${C.primary} 0%, #E31C5F 100%)`,
-    color: '#fff',
-    fontSize: '15px',
-    fontWeight: 800,
-    padding: '11px 18px',
-    borderRadius: '999px',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
-    marginLeft: 'auto',
   },
 };

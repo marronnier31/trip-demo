@@ -4,17 +4,26 @@ import AdminActionPanel from '../../components/admin/AdminActionPanel';
 import DataTable from '../../components/common/DataTable';
 import FilterChips from '../../components/common/FilterChips';
 import ListPageHeader from '../../components/common/ListPageHeader';
+import SectionNav from '../../components/common/SectionNav';
 import StatusBadge from '../../components/common/StatusBadge';
 
 const MOCK_INQUIRIES = [
   { inquiryId: 1, senderName: '홍길동', inquiryType: 'USER_TO_SELLER', title: '주차 가능한가요?', inquiryStatus: 'PENDING', createdAt: '2026-03-01', content: '체크인 당일 차량 1대 이용 예정입니다. 주차 가능 여부를 확인하고 싶습니다.' },
   { inquiryId: 2, senderName: '김판매', inquiryType: 'SELLER_TO_ADMIN', title: '숙소 등록 오류 문의', inquiryStatus: 'ANSWERED', createdAt: '2026-03-02', content: '숙소 등록 화면에서 저장 후 목록에 반영되지 않습니다.' },
-  { inquiryId: 3, senderName: '이영희', inquiryType: 'COMMON_TO_ADMIN', title: '로그인이 안 됩니다', inquiryStatus: 'PENDING', createdAt: '2026-03-04', content: '크롬 브라우저에서 로그인 후 곧바로 세션이 종료됩니다.' },
+  { inquiryId: 3, senderName: '이영희', inquiryType: 'COMMON_TO_ADMIN', title: '로그인이 안 됩니다', inquiryStatus: 'CLOSED', createdAt: '2026-03-04', content: '크롬 브라우저에서 로그인 후 곧바로 세션이 종료됩니다.' },
   { inquiryId: 4, senderName: '박사장', inquiryType: 'SELLER_TO_ADMIN', title: '정산 관련 문의', inquiryStatus: 'PENDING', createdAt: '2026-03-05', content: '이번 주 예약 정산 내역과 예상 지급일을 확인하고 싶습니다.' },
 ];
 
-const STATUS_COLOR = { ANSWERED: '#dcfce7', PENDING: '#fef9c3' };
-const STATUS_LABEL = { ANSWERED: '답변 완료', PENDING: '대기 중' };
+const STATUS_COLOR = { ANSWERED: '#dcfce7', PENDING: '#fef9c3', CLOSED: '#E5E7EB' };
+const STATUS_LABEL = { ANSWERED: '답변 완료', PENDING: '대기 중', CLOSED: '문의 종료' };
+const ADMIN_SECTION_ITEMS = [
+  { to: '/admin', label: '대시보드', match: (pathname) => pathname === '/admin' },
+  { to: '/admin/users', label: '회원 관리', match: (pathname) => pathname.startsWith('/admin/users') },
+  { to: '/admin/sellers', label: '호스트 승인', match: (pathname) => pathname.startsWith('/admin/sellers') },
+  { to: '/admin/inquiries', label: '문의 처리', match: (pathname) => pathname.startsWith('/admin/inquiries') },
+  { to: '/admin/rewards', label: '쿠폰·마일리지', match: (pathname) => pathname.startsWith('/admin/rewards') },
+  { to: '/admin/events', label: '이벤트 관리', match: (pathname) => pathname.startsWith('/admin/events') },
+];
 
 export default function AdminInquiryListPage() {
   const [filter, setFilter] = useState('ALL');
@@ -63,7 +72,7 @@ export default function AdminInquiryListPage() {
     {
       key: 'actions',
       label: '관리',
-      width: '240px',
+      width: '300px',
       render: (row) => (
         <div style={styles.actionRow}>
           <button type="button" style={styles.ghostBtn} onClick={() => { setSelectedInquiryId(row.inquiryId); setReplyNote(''); }}>상세 보기</button>
@@ -72,6 +81,9 @@ export default function AdminInquiryListPage() {
           ) : (
             <button type="button" style={styles.secondaryBtn} onClick={() => updateInquiryStatus(row.inquiryId, 'PENDING')}>대기 전환</button>
           )}
+          {row.inquiryStatus !== 'CLOSED' ? (
+            <button type="button" style={styles.closeBtn} onClick={() => updateInquiryStatus(row.inquiryId, 'CLOSED')}>문의 종료</button>
+          ) : null}
         </div>
       ),
     },
@@ -79,6 +91,7 @@ export default function AdminInquiryListPage() {
 
   return (
     <div style={styles.wrap}>
+      <SectionNav items={ADMIN_SECTION_ITEMS} />
       <ListPageHeader
         title="문의 관리"
         description={`현재 필터 기준 ${filtered.length}건의 문의가 보입니다.`}
@@ -97,12 +110,13 @@ export default function AdminInquiryListPage() {
           ]}
           note={replyNote}
           onNoteChange={setReplyNote}
-          notePlaceholder="관리자 답변 메모를 입력해 보세요. 현재는 프론트 시현용입니다."
+          notePlaceholder="관리자 답변 메모를 입력해 보세요."
           actions={(
             <>
               <button type="button" style={styles.ghostBtn} onClick={() => setSelectedInquiryId(null)}>닫기</button>
               <button type="button" style={styles.secondaryBtn} onClick={() => updateInquiryStatus(selectedInquiry.inquiryId, 'PENDING')}>대기 전환</button>
               <button type="button" style={styles.primaryBtn} onClick={() => updateInquiryStatus(selectedInquiry.inquiryId, 'ANSWERED')}>답변 완료</button>
+              <button type="button" style={styles.closeBtn} onClick={() => updateInquiryStatus(selectedInquiry.inquiryId, 'CLOSED')}>문의 종료</button>
             </>
           )}
         />
@@ -112,9 +126,10 @@ export default function AdminInquiryListPage() {
 }
 
 const styles = {
-  wrap: { maxWidth: '1000px', margin: '0 auto', padding: '32px 24px' },
-  actionRow: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
+  wrap: { maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' },
+  actionRow: { display: 'flex', gap: '8px', flexWrap: 'nowrap', alignItems: 'center' },
   ghostBtn: { border: '1px solid #E5E7EB', borderRadius: '999px', background: '#fff', color: '#374151', fontSize: '12px', fontWeight: 800, padding: '7px 10px', cursor: 'pointer' },
   secondaryBtn: { border: 'none', borderRadius: '999px', background: '#FEF3C7', color: '#92400E', fontSize: '12px', fontWeight: 800, padding: '7px 10px', cursor: 'pointer' },
   primaryBtn: { border: 'none', borderRadius: '999px', background: '#DCFCE7', color: '#166534', fontSize: '12px', fontWeight: 800, padding: '7px 10px', cursor: 'pointer' },
+  closeBtn: { border: 'none', borderRadius: '999px', background: '#E5E7EB', color: '#374151', fontSize: '12px', fontWeight: 800, padding: '7px 10px', cursor: 'pointer' },
 };

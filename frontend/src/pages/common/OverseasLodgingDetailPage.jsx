@@ -52,8 +52,8 @@ export default function OverseasLodgingDetailPage() {
               </div>
               <p style={s.desc}>
                 {isCouponEntry
-                  ? '현재는 해외 쿠폰 적용 가능 숙소 상세 mock 화면입니다. 백엔드가 붙으면 쿠폰 적용 가능 여부, 예상 할인 금액, 예약 단계 반영 금액을 이 화면에 그대로 연결하면 됩니다.'
-                  : '해외숙소 상세는 현재 mock 기준 페이지입니다. 백엔드가 붙으면 객실 구성, 취소 규정, 국가별 세금, 포인트 적립 예상값을 이 화면에 연결하면 됩니다.'}
+                  ? '해외 쿠폰이 적용 가능한 숙소를 중심으로 혜택과 예약 조건을 확인할 수 있습니다.'
+                  : '객실 구성, 취소 규정, 세금 안내, 혜택 정보를 한 화면에서 확인할 수 있도록 정리했습니다.'}
               </p>
               <div style={s.summaryStrip}>
                 <div style={s.summaryPill}>
@@ -124,13 +124,13 @@ export default function OverseasLodgingDetailPage() {
                 </p>
                 <p style={s.benefitGuideDesc}>
                   {isCouponEntry
-                    ? '백엔드가 붙으면 이 영역에 쿠폰 적용 가능 여부, 예상 할인 금액, 사용 가능한 쿠폰 조건, 예약 단계 차감 금액을 그대로 연결할 수 있습니다.'
-                    : '백엔드가 붙으면 이 영역에 포인트 적립 예정 값, 진행 중인 프로모션, 예약 단계에서 사용 가능한 혜택 요약을 그대로 연결할 수 있습니다.'}
+                    ? '해외 쿠폰 사용 가능 여부와 예상 할인 금액을 확인한 뒤 예약 단계로 이어갈 수 있습니다.'
+                    : '포인트 적립과 진행 중인 프로모션을 함께 보고 예약 흐름을 이어갈 수 있습니다.'}
                 </p>
                 <div style={s.benefitGuideList}>
                   <div style={s.benefitGuideItem}>
                     <span style={s.benefitGuideItemLabel}>{isCouponEntry ? '쿠폰 상태' : '포인트 적립'}</span>
-                    <strong style={s.benefitGuideItemValue}>{isCouponEntry ? '적용 가능 여부 확인 필요' : '등급 기준 적립 예정'}</strong>
+                    <strong style={s.benefitGuideItemValue}>{isCouponEntry ? '숙소별 조건 확인' : '등급 기준 적립 예정'}</strong>
                   </div>
                   <div style={s.benefitGuideItem}>
                     <span style={s.benefitGuideItemLabel}>{isCouponEntry ? '예약 연결' : '추천 동선'}</span>

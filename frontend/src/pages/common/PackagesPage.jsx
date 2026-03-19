@@ -2,13 +2,34 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { PACKAGE_ITEMS } from '../../mock/packageMockData';
 import { C, MAX_WIDTH } from '../../styles/tokens';
 
+function normalize(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
 export default function PackagesPage() {
   const [params, setSearchParams] = useSearchParams();
+  const keyword = params.get('keyword') || '';
   const selectedTheme = params.get('theme') || '';
   const themes = Array.from(new Set(PACKAGE_ITEMS.map((item) => item.theme)));
   // TODO(back-end): 패키지 목록/필터/최저가 응답으로 교체한다.
 
-  const filteredItems = PACKAGE_ITEMS.filter((item) => !selectedTheme || item.theme === selectedTheme);
+  const filteredItems = PACKAGE_ITEMS.filter((item) => {
+    const matchesTheme = !selectedTheme || item.theme === selectedTheme;
+    const term = normalize(keyword);
+    const matchesKeyword = !term || [
+      item.title,
+      item.destination,
+      item.theme,
+      item.departureCity,
+      item.durationLabel,
+      ...(item.includes || []),
+    ]
+      .map(normalize)
+      .join(' ')
+      .includes(term);
+
+    return matchesTheme && matchesKeyword;
+  });
 
   const updateTheme = (theme) => {
     const nextParams = new URLSearchParams(params);
@@ -23,7 +44,7 @@ export default function PackagesPage() {
         <div style={s.inner}>
           <p style={s.eyebrow}>PACKAGE TRAVEL</p>
           <h1 style={s.title}>패키지 여행</h1>
-          <p style={s.desc}>항공과 숙소를 한 번에 비교할 수 있는 패키지 결과형 화면입니다. 지금은 프론트 mock 기준으로 먼저 준비했습니다.</p>
+          <p style={s.desc}>항공과 숙소를 한 번에 비교할 수 있는 패키지 여행 결과형 페이지입니다.</p>
           <div style={s.actions}>
             <Link to="/promotions" style={s.primaryBtn}>프로모션 보기</Link>
             <Link to="/support" style={s.secondaryBtn}>상담 문의</Link>
@@ -35,7 +56,9 @@ export default function PackagesPage() {
         <div style={s.inner}>
           <div style={s.headRow}>
             <div>
-              <p style={s.resultText}>{selectedTheme ? `${selectedTheme} 패키지` : '추천 패키지'}</p>
+              <p style={s.resultText}>
+                {keyword ? `'${keyword}' 검색 결과` : selectedTheme ? `${selectedTheme} 패키지` : '추천 패키지'}
+              </p>
               <p style={s.resultCount}>{filteredItems.length}개 상품</p>
             </div>
             <Link to="/flights" style={s.secondaryBtn}>항공만 보기</Link>

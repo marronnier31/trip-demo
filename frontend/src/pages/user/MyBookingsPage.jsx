@@ -133,7 +133,7 @@ export default function MyBookingsPage() {
                   <label style={styles.editLabel}>체크아웃</label>
                   <input type="date" value={editCheckOut} min={editCheckIn || undefined} onChange={(event) => setEditCheckOut(event.target.value)} style={styles.editInput} />
                   <label style={styles.editLabel}>인원</label>
-                  <select value={editGuests} onChange={(event) => setEditGuests(Number(event.target.value))} style={styles.editInput}>
+                  <select value={editGuests} onChange={(event) => setEditGuests(Number(event.target.value))} style={styles.editSelect}>
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => <option key={n} value={n}>{n}명</option>)}
                   </select>
                   <div style={styles.actionRow}>
@@ -182,7 +182,24 @@ const styles = {
   details: { display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '14px', color: '#6b7280' },
   editGrid: { display: 'grid', gap: '6px' },
   editLabel: { fontSize: '12px', color: '#6b7280', fontWeight: 700, marginTop: '4px' },
-  editInput: { width: '100%', padding: '9px 10px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' },
+  editInput: { width: '100%', minHeight: '42px', padding: '9px 10px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' },
+  editSelect: {
+    width: '100%',
+    minHeight: '42px',
+    padding: '9px 34px 9px 10px',
+    border: '1px solid #d1d5db',
+    borderRadius: '8px',
+    fontSize: '14px',
+    boxSizing: 'border-box',
+    backgroundColor: '#fff',
+    backgroundImage: 'linear-gradient(45deg, transparent 50%, #8A6B64 50%), linear-gradient(135deg, #8A6B64 50%, transparent 50%)',
+    backgroundPosition: 'calc(100% - 16px) calc(50% - 2px), calc(100% - 10px) calc(50% - 2px)',
+    backgroundSize: '6px 6px, 6px 6px',
+    backgroundRepeat: 'no-repeat',
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+  },
   actionRow: { marginTop: '12px', display: 'flex', gap: '8px' },
   actionBtn: { border: '1px solid #D1D5DB', background: '#fff', color: '#374151', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' },
   primaryBtn: { borderColor: '#E8484A', background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)', color: '#fff' },
