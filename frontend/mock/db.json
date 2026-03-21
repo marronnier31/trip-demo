@@ -46,21 +46,6 @@
       "sellerId": 2
     },
     {
-      "id": 4,
-      "lodgingId": 4,
-      "name": "부산 광안리 게스트하우스",
-      "region": "부산",
-      "address": "수영구 광안2동 광안해변로 55",
-      "pricePerNight": 60000,
-      "thumbnailUrl": "https://picsum.photos/seed/ldg4/800/600",
-      "rating": 4.3,
-      "reviewCount": 67,
-      "description": "광안대교가 보이는 루프톱 뷰. 깔끔하고 감성적인 소규모 게스트하우스.",
-      "latitude": 35.15,
-      "longitude": 129.12,
-      "sellerId": 2
-    },
-    {
       "id": 5,
       "lodgingId": 5,
       "name": "설악산 글램핑",
@@ -89,21 +74,6 @@
       "latitude": 35.81,
       "longitude": 127.15,
       "sellerId": 3
-    },
-    {
-      "id": 7,
-      "lodgingId": 7,
-      "name": "한강 리버뷰 호텔",
-      "region": "서울",
-      "address": "서울시 영등포구 여의도동 77",
-      "pricePerNight": 178000,
-      "thumbnailUrl": "https://picsum.photos/seed/ldg7/800/600",
-      "rating": 4.7,
-      "reviewCount": 254,
-      "description": "한강이 내려다보이는 도심형 호텔입니다. 지하철 접근성이 좋고 비즈니스·호캉스 수요에 적합합니다.",
-      "latitude": 37.521,
-      "longitude": 126.924,
-      "sellerId": 2
     },
     {
       "id": 8,
@@ -166,20 +136,6 @@
       "createdAt": "2026-03-04"
     },
     {
-      "id": 3,
-      "bookingId": 3,
-      "lodgingId": 4,
-      "lodgingName": "부산 광안리 게스트하우스",
-      "thumbnailUrl": "https://picsum.photos/seed/ldg4/400/300",
-      "checkIn": "2026-03-15",
-      "checkOut": "2026-03-16",
-      "guests": 1,
-      "totalPrice": 60000,
-      "bookingStatus": "CANCELLED",
-      "userId": 1,
-      "createdAt": "2026-02-20"
-    },
-    {
       "lodgingId": 1,
       "lodgingName": "테스트",
       "checkIn": "2026-04-01",
@@ -189,54 +145,6 @@
       "bookingStatus": "CONFIRMED",
       "userId": 1,
       "id": 4
-    },
-    {
-      "lodgingId": 6,
-      "lodgingName": "전주 한옥 스테이",
-      "thumbnailUrl": "https://picsum.photos/seed/ldg6/800/600",
-      "checkIn": "2026-03-11",
-      "checkOut": "2026-03-25",
-      "guests": 2,
-      "totalPrice": 1540000,
-      "bookingStatus": "CONFIRMED",
-      "userId": 9000,
-      "id": 5
-    },
-    {
-      "lodgingId": 1,
-      "lodgingName": "한라산 뷰 펜션",
-      "thumbnailUrl": "https://picsum.photos/seed/ldg1/800/600",
-      "checkIn": "2026-03-11",
-      "checkOut": "2026-03-18",
-      "guests": 2,
-      "totalPrice": 840000,
-      "bookingStatus": "CONFIRMED",
-      "userId": 9000,
-      "id": 6
-    },
-    {
-      "lodgingId": 1,
-      "lodgingName": "한라산 뷰 펜션",
-      "thumbnailUrl": "https://picsum.photos/seed/ldg1/800/600",
-      "checkIn": "2026-03-11",
-      "checkOut": "2026-03-24",
-      "guests": 2,
-      "totalPrice": 1560000,
-      "bookingStatus": "CONFIRMED",
-      "userId": 9000,
-      "id": 7
-    },
-    {
-      "lodgingId": 4,
-      "lodgingName": "부산 광안리 게스트하우스",
-      "thumbnailUrl": "https://picsum.photos/seed/ldg4/800/600",
-      "checkIn": "2026-03-10",
-      "checkOut": "2026-03-17",
-      "guests": 2,
-      "totalPrice": 420000,
-      "bookingStatus": "CONFIRMED",
-      "userId": 9000,
-      "id": 8
     }
   ],
   "inquiries": [
@@ -259,6 +167,28 @@
       "inquiryStatus": "PENDING",
       "userId": 1,
       "createdAt": "2026-03-04"
+    },
+    {
+      "inquiryType": "COMMON_TO_ADMIN",
+      "title": "결제 화면에서 오류가 발생했어요",
+      "content": "xczxczxc",
+      "attachments": [],
+      "inquiryStatus": "PENDING",
+      "userId": 9000,
+      "senderUserId": 9000,
+      "createdAt": "2026-03-21",
+      "id": 3
+    },
+    {
+      "inquiryType": "USER_TO_SELLER",
+      "title": "체크인 시간이 늦어질 것 같아요",
+      "content": "ㄴㅇㄹㄴㅇㄹ",
+      "attachments": [],
+      "inquiryStatus": "PENDING",
+      "userId": 9000,
+      "senderUserId": 9000,
+      "createdAt": "2026-03-21",
+      "id": 4
     }
   ],
   "users": [
