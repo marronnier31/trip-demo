@@ -23,7 +23,7 @@ export default function FlightStaysPage() {
         <div style={s.inner}>
           <p style={s.eyebrow}>BUNDLE TRAVEL</p>
           <h1 style={s.title}>항공+숙소</h1>
-          <p style={s.desc}>항공과 숙소를 한 번에 묶어 비교하는 번들형 결과 페이지입니다. 지금은 프론트 mock 구조로 먼저 준비했습니다.</p>
+          <p style={s.desc}>항공과 숙소를 한 번에 묶어 비교할 수 있는 번들형 결과 페이지입니다.</p>
           <div style={s.actions}>
             <Link to="/flights" style={s.secondaryBtn}>항공 보기</Link>
             <Link to="/overseas" style={s.primaryBtn}>해외숙소 보기</Link>

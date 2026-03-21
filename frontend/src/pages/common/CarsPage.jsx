@@ -23,7 +23,7 @@ export default function CarsPage() {
         <div style={s.inner}>
           <p style={s.eyebrow}>RENTAL CAR</p>
           <h1 style={s.title}>렌터카</h1>
-          <p style={s.desc}>여행 일정과 함께 보기 좋은 렌터카 결과형 페이지입니다. 지금은 프론트 mock으로 먼저 준비했습니다.</p>
+          <p style={s.desc}>여행 일정과 함께 보기 좋은 렌터카 상품을 한눈에 비교할 수 있는 결과형 페이지입니다.</p>
           <div style={s.actions}>
             <Link to="/lodgings" style={s.primaryBtn}>숙소 일정 보기</Link>
             <Link to="/support" style={s.secondaryBtn}>상담 문의</Link>

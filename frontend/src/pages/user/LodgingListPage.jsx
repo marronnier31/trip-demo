@@ -15,6 +15,21 @@ const SORT_OPTIONS = [
   { value: 'rating', label: '평점 높은순' },
 ];
 
+const REGION_FILTER_OPTIONS = [
+  { value: 'all', label: '전체 지역' },
+  { value: '서울', label: '서울' },
+  { value: '부산', label: '부산' },
+  { value: '제주', label: '제주' },
+  { value: '강원', label: '강원' },
+];
+
+const RATING_FILTER_OPTIONS = [
+  { value: 0, label: '상관없음' },
+  { value: 4, label: '4.0+' },
+  { value: 4.5, label: '4.5+' },
+  { value: 4.8, label: '4.8+' },
+];
+
 const REGION_ALIASES = {
   서울: ['서울', '서울특별시'],
   경기: ['경기', '경기도'],
@@ -58,6 +73,19 @@ function sortLodgings(list, sort) {
 
 function hasValidCoordinate(lodging) {
   return Number.isFinite(Number(lodging.latitude)) && Number.isFinite(Number(lodging.longitude));
+}
+
+function applyAdvancedFilters(list, filters) {
+  return list.filter((lodging) => {
+    const price = Number(lodging.pricePerNight || 0);
+    const rating = Number(lodging.rating || 0);
+    const lodgingRegion = String(lodging.region || '');
+
+    if (filters.regionFilter !== 'all' && lodgingRegion !== filters.regionFilter) return false;
+    if (price < filters.minPrice || price > filters.maxPrice) return false;
+    if (rating < filters.minRating) return false;
+    return true;
+  });
 }
 
 function buildPriceMarkerIcon(pricePerNight, active) {
@@ -106,6 +134,16 @@ export default function LodgingListPage() {
   const [appliedBoundsKey, setAppliedBoundsKey] = useState('');
   const [mapInstance, setMapInstance] = useState(null);
   const [activeLodgingId, setActiveLodgingId] = useState(null);
+  const [regionFilter, setRegionFilter] = useState('all');
+  const [minRating, setMinRating] = useState(0);
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(999999);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [draftSort, setDraftSort] = useState('default');
+  const [draftRegionFilter, setDraftRegionFilter] = useState('all');
+  const [draftMinRating, setDraftMinRating] = useState(0);
+  const [draftMinPrice, setDraftMinPrice] = useState(0);
+  const [draftMaxPrice, setDraftMaxPrice] = useState(999999);
 
   useEffect(() => {
     getLodgings()
@@ -116,20 +154,34 @@ export default function LodgingListPage() {
       .catch(() => setLodgings([]));
   }, [keyword, region]);
 
-  const sorted = useMemo(() => sortLodgings(lodgings, sort), [lodgings, sort]);
-
-  const mapPoints = useMemo(
-    () => sorted.filter(hasValidCoordinate).map((lodging) => [Number(lodging.latitude), Number(lodging.longitude)]),
-    [sorted]
-  );
-
   const visibleLodgings = useMemo(() => {
-    if (!appliedBounds) return sorted;
-    return sorted.filter((lodging) => {
+    if (!appliedBounds) return lodgings;
+    return lodgings.filter((lodging) => {
       if (!hasValidCoordinate(lodging)) return false;
       return appliedBounds.contains([Number(lodging.latitude), Number(lodging.longitude)]);
     });
-  }, [sorted, appliedBounds]);
+  }, [lodgings, appliedBounds]);
+
+  const priceBounds = useMemo(() => {
+    const prices = lodgings.map((item) => Number(item.pricePerNight || 0)).filter((value) => Number.isFinite(value));
+    if (!prices.length) return { min: 0, max: 999999 };
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }, [lodgings]);
+
+  const filteredVisibleLodgings = useMemo(() => {
+    const filtered = applyAdvancedFilters(visibleLodgings, { regionFilter, minRating, minPrice, maxPrice });
+    return sortLodgings(filtered, sort);
+  }, [visibleLodgings, regionFilter, minRating, minPrice, maxPrice, sort]);
+
+  const mapPoints = useMemo(
+    () => filteredVisibleLodgings.filter(hasValidCoordinate).map((lodging) => [Number(lodging.latitude), Number(lodging.longitude)]),
+    [filteredVisibleLodgings]
+  );
+
+  const activeFilterCount = Number(sort !== 'default')
+    + Number(regionFilter !== 'all')
+    + Number(minRating > 0)
+    + Number(minPrice > priceBounds.min || maxPrice < priceBounds.max);
 
   const isBoundsDirty = Boolean(appliedBoundsKey && draftBoundsKey && appliedBoundsKey !== draftBoundsKey);
 
@@ -156,11 +208,32 @@ export default function LodgingListPage() {
 
   useEffect(() => {
     if (!mapInstance || !activeLodgingId) return;
-    const target = sorted.find((lodging) => lodging.lodgingId === activeLodgingId && hasValidCoordinate(lodging));
+    const target = filteredVisibleLodgings.find((lodging) => lodging.lodgingId === activeLodgingId && hasValidCoordinate(lodging));
     if (target) {
       mapInstance.panTo([Number(target.latitude), Number(target.longitude)], { animate: true, duration: 0.35 });
     }
-  }, [activeLodgingId, mapInstance, sorted]);
+  }, [activeLodgingId, mapInstance, filteredVisibleLodgings]);
+
+  useEffect(() => {
+    if (!filterOpen) return undefined;
+    setDraftSort(sort);
+    setDraftRegionFilter(regionFilter);
+    setDraftMinRating(minRating);
+    setDraftMinPrice(minPrice);
+    setDraftMaxPrice(maxPrice);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [filterOpen, sort, regionFilter, minRating, minPrice, maxPrice]);
+
+  useEffect(() => {
+    setMinPrice(priceBounds.min);
+    setMaxPrice(priceBounds.max);
+    setDraftMinPrice(priceBounds.min);
+    setDraftMaxPrice(priceBounds.max);
+  }, [priceBounds.min, priceBounds.max]);
 
   const initialCenter = [36.4, 127.8];
 
@@ -177,6 +250,23 @@ export default function LodgingListPage() {
     if (!mapBoundsDraft || !draftBoundsKey) return;
     setAppliedBounds(mapBoundsDraft);
     setAppliedBoundsKey(draftBoundsKey);
+  };
+
+  const handleApplyFilters = () => {
+    setSort(draftSort);
+    setRegionFilter(draftRegionFilter);
+    setMinRating(draftMinRating);
+    setMinPrice(Math.min(draftMinPrice, draftMaxPrice));
+    setMaxPrice(Math.max(draftMinPrice, draftMaxPrice));
+    setFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setDraftSort('default');
+    setDraftRegionFilter('all');
+    setDraftMinRating(0);
+    setDraftMinPrice(priceBounds.min);
+    setDraftMaxPrice(priceBounds.max);
   };
 
   return (
@@ -234,7 +324,7 @@ export default function LodgingListPage() {
       <div style={s.splitWrap} className="tz-lodging-split">
         <section style={s.listPane}>
           <div style={s.filterBar}>
-            <div>
+            <div style={s.resultRow}>
               {benefit ? (
                 <p style={s.benefitGuide}>
                   {benefit === 'points'
@@ -248,33 +338,35 @@ export default function LodgingListPage() {
               ) : null}
               <p style={s.resultCount}>
               {keyword ? `'${keyword}' 검색 결과` : region ? `'${region}' 검색 결과` : '지도에 표시된 숙소'}
-              <span style={s.count}> {visibleLodgings.length}개</span>
+              <span style={s.count}> {filteredVisibleLodgings.length}개</span>
               </p>
-            </div>
-            <div style={s.sortGroup}>
-              {SORT_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSort(option.value)}
-                  style={{
-                    ...s.sortBtn,
-                    background: sort === option.value ? '#1F2530' : '#FFFFFF',
-                    color: sort === option.value ? '#fff' : '#5D6778',
-                    borderColor: sort === option.value ? '#1F2530' : '#E3E6EC',
-                    boxShadow: sort === option.value ? '0 4px 12px rgba(0,0,0,0.1)' : 'none',
-                  }}
-                >
-                  {option.label}
-                </button>
-              ))}
+              <button type="button" style={s.filterTriggerBtnInline} onClick={() => setFilterOpen(true)}>
+                <span style={s.filterTriggerIcon} aria-hidden="true">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <line x1="4" y1="6" x2="20" y2="6" />
+                    <line x1="4" y1="12" x2="20" y2="12" />
+                    <line x1="4" y1="18" x2="20" y2="18" />
+                    <circle cx="9" cy="6" r="2" fill="#FFF6F6" />
+                    <circle cx="15" cy="12" r="2" fill="#FFF6F6" />
+                    <circle cx="11" cy="18" r="2" fill="#FFF6F6" />
+                  </svg>
+                </span>
+                <span>필터</span>
+                {activeFilterCount > 0 ? <span style={s.filterTriggerCount}>{activeFilterCount}</span> : null}
+              </button>
             </div>
           </div>
 
-          {visibleLodgings.length === 0 ? (
-            <EmptyState icon="🗺️" title="지도 영역에 숙소가 없습니다" desc="지도를 이동하거나 축소해서 다른 지역을 찾아보세요." />
+          {filteredVisibleLodgings.length === 0 ? (
+            <EmptyState
+              icon="🗺️"
+              title="지도 영역에 숙소가 없습니다"
+              desc="지도를 이동하거나 축소해서 다른 지역을 찾아보세요."
+              action={{ label: '전체 숙소 보기', onClick: () => navigate('/lodgings') }}
+            />
           ) : (
             <div style={s.grid}>
-              {visibleLodgings.map((lodging) => (
+              {filteredVisibleLodgings.map((lodging) => (
                 <div
                   key={lodging.lodgingId}
                   style={{
@@ -316,7 +408,7 @@ export default function LodgingListPage() {
 
               <MapBoundsWatcher onBoundsChange={onBoundsChange} />
 
-              {sorted.filter(hasValidCoordinate).map((lodging) => (
+              {filteredVisibleLodgings.filter(hasValidCoordinate).map((lodging) => (
                 <Marker
                   key={`marker-${lodging.lodgingId}`}
                   position={[Number(lodging.latitude), Number(lodging.longitude)]}
@@ -350,6 +442,113 @@ export default function LodgingListPage() {
           </div>
         </aside>
       </div>
+
+      {filterOpen ? (
+        <div style={s.filterModalOverlay} onClick={() => setFilterOpen(false)}>
+          <div style={s.filterModal} onClick={(event) => event.stopPropagation()}>
+            <div style={s.filterModalHeader}>
+              <strong style={s.filterModalTitle}>필터</strong>
+              <button type="button" style={s.filterModalClose} onClick={() => setFilterOpen(false)}>×</button>
+            </div>
+
+            <div style={s.filterModalBody}>
+              <section style={s.filterModalSection}>
+                <p style={s.filterModalSectionTitle}>지역</p>
+                <div style={s.chipRow}>
+                  {REGION_FILTER_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      style={{ ...s.sortBtn, ...(draftRegionFilter === option.value ? s.sortBtnActive : null) }}
+                      onClick={() => setDraftRegionFilter(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section style={s.filterModalSection}>
+                <p style={s.filterModalSectionTitle}>가격 범위</p>
+                <div style={s.priceGuideRow}>
+                  <div style={s.priceBadgeBox}>
+                    <span style={s.priceBadgeLabel}>최저</span>
+                    <strong style={s.priceBadgeValue}>₩{draftMinPrice.toLocaleString()}</strong>
+                  </div>
+                  <div style={s.priceBadgeBox}>
+                    <span style={s.priceBadgeLabel}>최고</span>
+                    <strong style={s.priceBadgeValue}>₩{draftMaxPrice.toLocaleString()}</strong>
+                  </div>
+                </div>
+                <div style={s.rangeWrap}>
+                  <input
+                    type="range"
+                    min={priceBounds.min}
+                    max={priceBounds.max}
+                    step="5000"
+                    value={draftMinPrice}
+                    onChange={(event) => setDraftMinPrice(Math.min(Number(event.target.value), draftMaxPrice))}
+                    style={s.rangeInput}
+                  />
+                  <input
+                    type="range"
+                    min={priceBounds.min}
+                    max={priceBounds.max}
+                    step="5000"
+                    value={draftMaxPrice}
+                    onChange={(event) => setDraftMaxPrice(Math.max(Number(event.target.value), draftMinPrice))}
+                    style={s.rangeInput}
+                  />
+                </div>
+              </section>
+
+              <section style={s.filterModalSection}>
+                <p style={s.filterModalSectionTitle}>평점</p>
+                <div style={s.chipRow}>
+                  {RATING_FILTER_OPTIONS.map((item) => (
+                    <button
+                      key={item.value}
+                      type="button"
+                      style={{ ...s.quickFilterBtn, ...(draftMinRating === item.value ? s.quickFilterBtnActive : null) }}
+                      onClick={() => setDraftMinRating(item.value)}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section style={s.filterModalSection}>
+                <p style={s.filterModalSectionTitle}>정렬</p>
+                <div style={s.chipRow}>
+                  {SORT_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      style={{ ...s.quickFilterBtn, ...(draftSort === option.value ? s.quickFilterBtnActive : null) }}
+                      onClick={() => setDraftSort(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <div style={s.filterModalFooter}>
+              <button type="button" style={s.filterResetBtn} onClick={handleResetFilters}>전체 해제</button>
+              <button type="button" style={s.filterApplyBtn} onClick={handleApplyFilters}>
+                숙소 {sortLodgings(applyAdvancedFilters(visibleLodgings, {
+                  regionFilter: draftRegionFilter,
+                  minRating: draftMinRating,
+                  minPrice: Math.min(draftMinPrice, draftMaxPrice),
+                  maxPrice: Math.max(draftMinPrice, draftMaxPrice),
+                }), draftSort).length}개 보기
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -444,11 +643,16 @@ const s = {
   map: { width: '100%', height: '100%' },
   filterBar: {
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '20px',
     flexWrap: 'wrap',
     gap: '12px',
+  },
+  resultRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flexWrap: 'wrap',
   },
   benefitGuide: {
     margin: '0 0 8px',
@@ -456,17 +660,79 @@ const s = {
     fontWeight: '800',
     color: C.primary,
   },
+  filterTriggerBtnInline: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '10px',
+    borderRadius: '999px',
+    border: `2px solid ${C.primary}`,
+    background: '#FFF6F6',
+    color: C.primary,
+    fontSize: '15px',
+    fontWeight: 800,
+    padding: '10px 18px',
+    cursor: 'pointer',
+    marginTop: '2px',
+  },
+  filterTriggerIcon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: 0,
+  },
+  filterTriggerCount: {
+    minWidth: '26px',
+    height: '26px',
+    borderRadius: '999px',
+    background: C.primary,
+    color: '#fff',
+    fontSize: '13px',
+    fontWeight: 800,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: '2px',
+  },
   resultCount: { fontSize: '22px', fontWeight: '700', color: C.text, margin: 0 },
   count: { fontSize: '16px', fontWeight: '400', color: C.textSub },
-  sortGroup: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
-  sortBtn: {
-    padding: '8px 18px',
-    border: '1px solid',
+  searchSummaryInfo: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+    alignItems: 'center',
+  },
+  chipRow: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
+  quickFilterBtn: {
+    border: '1px solid #E3E6EC',
     borderRadius: '999px',
-    fontSize: '14px',
+    background: '#fff',
+    color: '#5D6778',
+    fontSize: '13px',
+    fontWeight: 700,
+    padding: '8px 12px',
+    cursor: 'pointer',
+  },
+  quickFilterBtnActive: {
+    background: '#1F2530',
+    color: '#fff',
+    borderColor: '#1F2530',
+  },
+  sortBtn: {
+    padding: '8px 12px',
+    border: '1px solid #E3E6EC',
+    borderRadius: '999px',
+    fontSize: '13px',
     fontWeight: '700',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
+    background: '#fff',
+    color: '#5D6778',
+  },
+  sortBtnActive: {
+    background: '#1F2530',
+    color: '#fff',
+    borderColor: '#1F2530',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
   },
   grid: {
     display: 'grid',
@@ -490,6 +756,123 @@ const s = {
     color: '#fff',
     padding: '6px 10px',
     fontSize: '12px',
+    cursor: 'pointer',
+  },
+  filterModalOverlay: {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(15,23,42,0.34)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 3000,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '24px',
+  },
+  filterModal: {
+    width: 'min(760px, 100%)',
+    maxHeight: 'min(86vh, 920px)',
+    background: '#fff',
+    borderRadius: '28px',
+    overflow: 'hidden',
+    boxShadow: '0 28px 80px rgba(15,23,42,0.24)',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  filterModalHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '22px 26px',
+    borderBottom: `1px solid ${C.borderLight}`,
+  },
+  filterModalTitle: {
+    fontSize: '22px',
+    color: C.text,
+    fontWeight: 800,
+  },
+  filterModalClose: {
+    border: 'none',
+    background: 'transparent',
+    color: '#2D2D2D',
+    fontSize: '28px',
+    lineHeight: 1,
+    cursor: 'pointer',
+  },
+  filterModalBody: {
+    padding: '10px 26px 24px',
+    overflowY: 'auto',
+    display: 'grid',
+    gap: '22px',
+  },
+  filterModalSection: {
+    display: 'grid',
+    gap: '12px',
+    paddingTop: '14px',
+    borderTop: `1px solid ${C.borderLight}`,
+  },
+  filterModalSectionTitle: {
+    margin: 0,
+    fontSize: '18px',
+    color: C.text,
+    fontWeight: 800,
+  },
+  priceGuideRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '12px',
+    flexWrap: 'wrap',
+  },
+  priceBadgeBox: {
+    minWidth: '160px',
+    borderRadius: '18px',
+    border: `1px solid ${C.borderLight}`,
+    background: '#FCFCFD',
+    padding: '14px 16px',
+    display: 'grid',
+    gap: '6px',
+  },
+  priceBadgeLabel: {
+    fontSize: '12px',
+    color: '#6B7280',
+    fontWeight: 800,
+  },
+  priceBadgeValue: {
+    fontSize: '18px',
+    color: C.text,
+    fontWeight: 800,
+  },
+  rangeWrap: {
+    display: 'grid',
+    gap: '14px',
+  },
+  rangeInput: {
+    width: '100%',
+    accentColor: C.primary,
+  },
+  filterModalFooter: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '12px',
+    padding: '18px 26px 24px',
+    borderTop: `1px solid ${C.borderLight}`,
+  },
+  filterResetBtn: {
+    border: 'none',
+    background: 'transparent',
+    color: '#4B5563',
+    fontSize: '15px',
+    fontWeight: 800,
+    cursor: 'pointer',
+  },
+  filterApplyBtn: {
+    border: 'none',
+    borderRadius: '16px',
+    background: `linear-gradient(135deg, ${C.primary} 0%, ${C.primaryHover} 100%)`,
+    color: '#fff',
+    fontSize: '15px',
+    fontWeight: 800,
+    padding: '14px 18px',
     cursor: 'pointer',
   },
 };

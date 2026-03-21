@@ -6,6 +6,34 @@
 - 실제 연동 전환은 Spring Boot + Oracle DB 기준으로 맞춘다.
 - 프론트 API 경로 `/api/v1/...` 는 유지한다.
 
+## 팀원 공유용 빠른 실행 요약
+
+### 백엔드만 먼저 확인할 때
+
+```bash
+cd backend/tripzone-backend
+cp .env.example .env
+./mvnw test
+./mvnw spring-boot:run
+```
+
+### 프론트까지 같이 띄울 때
+
+```bash
+cd frontend
+npm install
+npm run mock
+npm run dev
+```
+
+### 기본 연결 기준
+
+- 프론트: `http://localhost:5173`
+- 백엔드: `http://localhost:8080`
+- API 경로: `/api/v1/...`
+- 기본 프로필: `local`
+- 로컬 DB: `H2 in-memory`
+
 ## 현재 기본 구성
 
 - 백엔드 경로: `backend/tripzone-backend`

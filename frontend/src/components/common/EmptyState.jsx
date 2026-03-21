@@ -16,10 +16,16 @@ export default function EmptyState({ icon = '🔍', title, desc, action }) {
 }
 
 const s = {
-  wrap: { textAlign: 'center', padding: '80px 24px' },
+  wrap: {
+    textAlign: 'center',
+    padding: '80px 24px',
+    borderRadius: '20px',
+    border: `1px solid ${C.borderLight}`,
+    background: '#FCFCFC',
+  },
   icon: { fontSize: '48px', marginBottom: '16px' },
   title: { fontSize: '18px', fontWeight: '600', color: C.text, margin: '0 0 8px' },
-  desc: { fontSize: '14px', color: C.textSub, margin: '0 0 24px' },
+  desc: { fontSize: '14px', color: C.textSub, margin: '0 0 24px', lineHeight: 1.7 },
   btn: {
     padding: '12px 24px',
     background: C.primary,

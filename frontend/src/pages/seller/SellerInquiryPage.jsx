@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import DataTable from '../../components/common/DataTable';
 import ListPageHeader from '../../components/common/ListPageHeader';
+import SectionNav from '../../components/common/SectionNav';
 import StatusBadge from '../../components/common/StatusBadge';
 
 const MOCK_RECEIVED = [
@@ -11,6 +12,12 @@ const MOCK_RECEIVED = [
 
 const STATUS_LABEL = { ANSWERED: '답변 완료', PENDING: '대기 중' };
 const STATUS_COLOR = { ANSWERED: '#dcfce7', PENDING: '#fef9c3' };
+const SELLER_SECTION_ITEMS = [
+  { to: '/seller', label: '대시보드', match: (pathname) => pathname === '/seller' },
+  { to: '/seller/lodgings', label: '숙소 관리', match: (pathname) => pathname.startsWith('/seller/lodgings') },
+  { to: '/seller/reservations', label: '예약 관리', match: (pathname) => pathname.startsWith('/seller/reservations') },
+  { to: '/seller/inquiries', label: '문의 관리', match: (pathname) => pathname.startsWith('/seller/inquiries') },
+];
 
 export default function SellerInquiryPage() {
   const [rows, setRows] = useState([]);
@@ -39,10 +46,21 @@ export default function SellerInquiryPage() {
       ),
     },
     { key: 'createdAt', label: '접수일', width: '120px' },
+    {
+      key: 'actions',
+      label: '상세',
+      width: '160px',
+      render: (row) => (
+        <Link to={`/seller/inquiries/${row.inquiryId}`} style={styles.chatBtn}>
+          채팅 보기
+        </Link>
+      ),
+    },
   ];
 
   return (
     <div style={styles.wrap}>
+      <SectionNav items={SELLER_SECTION_ITEMS} />
       <ListPageHeader
         title="문의 관리"
         description={`사용자에게서 받은 문의 ${rows.length}건을 확인할 수 있습니다.`}
@@ -54,6 +72,19 @@ export default function SellerInquiryPage() {
 }
 
 const styles = {
-  wrap: { maxWidth: '800px', margin: '0 auto', padding: '32px 24px' },
+  wrap: { maxWidth: '1280px', margin: '0 auto', padding: '32px 24px' },
   addBtn: { padding: '10px 16px', background: '#2563eb', color: '#fff', borderRadius: '8px', textDecoration: 'none', fontSize: '14px' },
+  chatBtn: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '8px 12px',
+    borderRadius: '999px',
+    background: '#FFF6F6',
+    color: '#C13A3D',
+    textDecoration: 'none',
+    fontSize: '12px',
+    fontWeight: 800,
+    border: '1px solid #F1B3B3',
+  },
 };

@@ -70,7 +70,7 @@ export default function OverseasPage() {
             <div style={s.benefitBanner}>
               <p style={s.benefitEyebrow}>COUPON ENTRY</p>
               <h2 style={s.benefitTitle}>{getBenefitScopeLabel(scope)}</h2>
-              <p style={s.benefitDesc}>현재는 프론트 mock 기준 결과형 화면입니다. 나중에 백엔드가 붙으면 국가/도시/쿠폰 적용 가능 여부 기준으로 실제 필터링할 수 있습니다.</p>
+              <p style={s.benefitDesc}>해외숙소 쿠폰이 적용되는 상품을 중심으로 둘러볼 수 있도록 준비된 추천 화면입니다.</p>
             </div>
           ) : null}
 

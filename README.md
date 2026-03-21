@@ -74,6 +74,7 @@ npm run dev
 - 웹 프레젠테이션(최종): `http://localhost:5173/presentation/TripZone_presentation_FINAL.html`
 - DB ERD (Clean): `http://localhost:5173/presentation/TripZone_ERD_Clean.html`
 - DB 스키마 대시보드: `http://localhost:5173/schema/index.html`
+- 설계 문서 허브: `http://localhost:5173/presentation/design-reference/usecases.html`
 
 ## Build Check
 

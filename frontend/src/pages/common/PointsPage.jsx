@@ -40,7 +40,7 @@ export default function PointsPage() {
           <article style={s.summaryCard}>
             <p style={s.summaryLabel}>출석 적립 예정</p>
             <p style={s.summaryValue}>{pendingAttendancePoint.toLocaleString()}P</p>
-            <p style={s.summaryDesc}>서버 저장 전 mock 기준으로 계산한 출석체크 적립 예정 포인트입니다.</p>
+            <p style={s.summaryDesc}>출석체크 참여 시 받을 수 있는 적립 예정 포인트입니다.</p>
           </article>
           <article style={s.summaryCard}>
             <p style={s.summaryLabel}>누적 사용 포인트</p>
@@ -61,7 +61,7 @@ export default function PointsPage() {
           <div style={s.useCard}>
             <div>
               <p style={s.useValue}>{benefitSnapshot.mileageBalance.toLocaleString()}P</p>
-              <p style={s.useDesc}>현재 보유 포인트는 예약 단계에서 즉시 차감하는 방식으로 연결할 수 있습니다. 출석체크 적립 예정 포인트는 서버 연동 후 실제 잔액에 반영됩니다.</p>
+              <p style={s.useDesc}>현재 보유 포인트는 예약 단계에서 바로 사용할 수 있고, 출석체크 혜택도 함께 쌓을 수 있습니다.</p>
             </div>
             <div style={s.useMeta}>
               <div style={s.metaBox}>

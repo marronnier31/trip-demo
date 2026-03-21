@@ -194,7 +194,7 @@ const s = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '24px',
-    zIndex: 400,
+    zIndex: 3000,
   },
   modal: {
     width: 'min(760px, 100%)',

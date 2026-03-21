@@ -145,6 +145,48 @@
       "bookingStatus": "CONFIRMED",
       "userId": 1,
       "id": 4
+    },
+    {
+      "lodgingId": 1,
+      "lodgingName": "한라산 뷰 펜션",
+      "thumbnailUrl": "https://picsum.photos/seed/ldg1/800/600",
+      "checkIn": "2026-03-26",
+      "checkOut": "2026-04-21",
+      "guests": 2,
+      "totalPrice": 3105000,
+      "appliedCouponNo": 102,
+      "usedMileage": 0,
+      "bookingStatus": "CONFIRMED",
+      "userId": 9000,
+      "id": 5
+    },
+    {
+      "lodgingId": 1,
+      "lodgingName": "한라산 뷰 펜션",
+      "thumbnailUrl": "https://picsum.photos/seed/ldg1/800/600",
+      "checkIn": "2026-03-12",
+      "checkOut": "2026-04-23",
+      "guests": 2,
+      "totalPrice": 5040000,
+      "appliedCouponNo": null,
+      "usedMileage": 0,
+      "bookingStatus": "CONFIRMED",
+      "userId": 9000,
+      "id": 6
+    },
+    {
+      "lodgingId": 1,
+      "lodgingName": "한라산 뷰 펜션",
+      "thumbnailUrl": "https://picsum.photos/seed/ldg1/800/600",
+      "checkIn": "2026-03-23",
+      "checkOut": "2026-04-02",
+      "guests": 2,
+      "totalPrice": 1185000,
+      "appliedCouponNo": 102,
+      "usedMileage": 0,
+      "bookingStatus": "CONFIRMED",
+      "userId": 9000,
+      "id": 7
     }
   ],
   "inquiries": [

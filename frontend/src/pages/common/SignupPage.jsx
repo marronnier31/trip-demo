@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ROLES } from '../../constants/roles';
 
 const SOCIALS = [
@@ -70,6 +70,7 @@ function SocialIcon({ id }) {
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -81,6 +82,11 @@ export default function SignupPage() {
   });
   const [done, setDone] = useState(false);
   const [hoveredSocial, setHoveredSocial] = useState('');
+
+  useEffect(() => {
+    if (params.get('role') !== ROLES.SELLER) return;
+    setForm((prev) => (prev.role === ROLES.SELLER ? prev : { ...prev, role: ROLES.SELLER }));
+  }, [params]);
 
   const set = (key) => (event) => setForm((prev) => ({ ...prev, [key]: event.target.value }));
 

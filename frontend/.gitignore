@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Presentation backups
+public/presentation/*.html
+!public/presentation/TripZone_ERD_Clean.html
+!public/presentation/index.html

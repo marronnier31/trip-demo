@@ -32,7 +32,7 @@ export default function ReviewComposer({
           {reason === 'COMPLETED_BOOKING_REQUIRED'
             ? '완료된 예약이 확인되면 별점과 사진 리뷰를 남길 수 있습니다.'
             : reason === 'ALREADY_REVIEWED'
-              ? '이미 이 숙소에 리뷰를 작성했습니다. 삭제 후 다시 작성하거나 백엔드 연결 후 수정 기능을 사용할 수 있습니다.'
+              ? '이미 이 숙소에 리뷰를 작성했습니다. 기존 리뷰를 확인해 주세요.'
             : '현재는 리뷰를 작성할 수 없는 상태입니다.'}
         </p>
       </div>

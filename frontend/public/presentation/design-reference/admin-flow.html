@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TripZone Admin Flow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans+KR:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background:
+          radial-gradient(circle at top, rgba(107, 146, 216, 0.22), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(107, 146, 216, 0.08), transparent 24%),
+          #0c1118;
+        color: #e6edf3;
+        font-family: "Manrope", "Noto Sans KR", sans-serif;
+      }
+      a { color: inherit; }
+      #header {
+        padding: 16px 24px;
+        background: rgba(17, 24, 33, 0.9);
+        border-bottom: 1px solid rgba(90, 110, 151, 0.24);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        backdrop-filter: blur(12px);
+      }
+      #header h1 { font-size: 24px; letter-spacing: -0.03em; font-weight: 800; }
+      #header .sub { color: #9fb0c2; font-size: 13px; font-weight: 700; }
+      #header .nav {
+        margin-left: auto;
+        color: #d7e3f1;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 800;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(107, 146, 216, 0.22);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      #legend { display: flex; gap: 12px; flex-wrap: wrap; width: 100%; color: #93a4b8; font-size: 12px; }
+      .legend-item { display: inline-flex; align-items: center; gap: 8px; }
+      .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+      #wrapper { overflow: auto; padding: 22px; }
+      .summary-board {
+        min-width: 1600px;
+        margin-bottom: 16px;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid rgba(90, 110, 151, 0.24);
+        background: linear-gradient(180deg, rgba(14, 20, 30, 0.96), rgba(18, 26, 38, 0.98));
+        box-shadow: 0 24px 56px rgba(0, 0, 0, 0.28);
+      }
+      .summary-board h2 {
+        font-size: 18px;
+        letter-spacing: -0.03em;
+        margin-bottom: 8px;
+      }
+      .summary-board p {
+        color: #93a4b8;
+        font-size: 12px;
+        margin-bottom: 14px;
+      }
+      .summary-flow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .summary-node, .summary-arrow {
+        flex: 0 0 auto;
+      }
+      .summary-node {
+        min-width: 156px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #1a2638;
+        border: 1px solid rgba(132, 168, 234, 0.3);
+        color: #edf3f9;
+        font-size: 13px;
+        font-weight: 800;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+        text-align: center;
+      }
+      .summary-node.core {
+        background: #322b1f;
+        border-color: rgba(245, 201, 107, 0.62);
+      }
+      .summary-node span {
+        display: block;
+        margin-top: 4px;
+        color: #93a4b8;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .summary-arrow {
+        color: rgba(132, 168, 234, 0.72);
+        font-size: 18px;
+        font-weight: 800;
+      }
+      #canvas {
+        min-width: 1600px;
+        background:
+          linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+          linear-gradient(180deg, rgba(8, 13, 20, 0.98), rgba(13, 20, 29, 0.98));
+        background-size: 32px 32px, 32px 32px, auto;
+        border: 1px solid rgba(90, 110, 151, 0.22);
+        border-radius: 30px;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.34);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <h1>TripZone Admin Flow</h1>
+      <span class="sub">Admin Operation Relationship Map</span>
+      <a class="nav" href="./usecases.html">흐름도 목록으로 →</a>
+      <div id="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#84a8ea"></span>일반 노드</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f5c96b"></span>중심 노드</div>
+        <div class="legend-item">실선: 주요 흐름</div>
+        <div class="legend-item">점선: 보조 흐름</div>
+      </div>
+    </div>
+    <div id="wrapper">
+      <section class="summary-board">
+        <h2>핵심 흐름 요약</h2>
+        <p>관리자는 상단 6개 운영 축만 먼저 보고, 아래에서 각 축의 세부 처리 단계를 확인하면 됩니다.</p>
+        <div class="summary-flow">
+          <div class="summary-node core">관리자로그인<span>운영 진입점</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node core">회원관리<span>조회 · 탈퇴 · 복구</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node core">호스트승인<span>승인 · 반려 · 복구</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node core">문의처리<span>문의 · 채팅 · 삭제</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node core">예약요청관리<span>완료 · 승인 · 거부 · 취소</span></div>
+          <div class="summary-arrow">→</div>
+          <div class="summary-node">이벤트 · 쿠폰관리<span>프로모션 운영</span></div>
+        </div>
+      </section>
+      <svg id="canvas" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <script>
+      const svg = document.getElementById("canvas");
+      const NS = "http://www.w3.org/2000/svg";
+      const BOX_W = 176;
+      const BOX_H = 62;
+      const section = {
+        x: 50, y: 46, w: 1640, h: 920, color: "#84a8ea", bg: "#101924", titleBg: "#17293f",
+        nodeFill: "#1a2638", coreFill: "#322b1f",
+        title: "03 관리자", subtitle: "회원 · 승인 · 문의 · 예약 · 이벤트 · 혜택 운영 흐름"
+      };
+      const nodes = [
+        { id: "login", x: 724, y: 126, label: "관리자로그인", core: true },
+        { id: "member", x: 120, y: 270, label: "전체회원관리", core: true },
+        { id: "memberView", x: 120, y: 368, label: "회원조회" },
+        { id: "memberDrop", x: 120, y: 462, label: "탈퇴회원처리" },
+        { id: "memberRestore", x: 120, y: 556, label: "탈퇴회원복구" },
+        { id: "host", x: 330, y: 270, label: "호스트승인", core: true },
+        { id: "hostOk", x: 330, y: 368, label: "승인처리" },
+        { id: "hostReject", x: 330, y: 462, label: "반려처리" },
+        { id: "hostRestore", x: 330, y: 556, label: "승인복구" },
+        { id: "inquiry", x: 540, y: 270, label: "문의처리", core: true },
+        { id: "inquiryList", x: 540, y: 368, label: "문의목록" },
+        { id: "chat", x: 540, y: 462, label: "실시간채팅" },
+        { id: "inquiryDelete", x: 540, y: 556, label: "문의삭제" },
+        { id: "booking", x: 750, y: 270, label: "예약요청관리", core: true },
+        { id: "bookingDone", x: 750, y: 368, label: "예약완료관리" },
+        { id: "stayDone", x: 750, y: 462, label: "숙박완료처리" },
+        { id: "bookingApprove", x: 750, y: 556, label: "예약요청승인" },
+        { id: "bookingDeny", x: 750, y: 650, label: "예약거부" },
+        { id: "bookingCancel", x: 750, y: 744, label: "예약취소관리" },
+        { id: "bookingRestore", x: 960, y: 744, label: "승인복구" },
+        { id: "event", x: 960, y: 270, label: "이벤트관리", core: true },
+        { id: "eventCreate", x: 960, y: 368, label: "이벤트등록" },
+        { id: "eventEdit", x: 960, y: 462, label: "이벤트수정" },
+        { id: "eventDelete", x: 960, y: 556, label: "이벤트삭제" },
+        { id: "coupon", x: 1170, y: 270, label: "쿠폰·등급관리", core: true },
+        { id: "couponCreate", x: 1170, y: 368, label: "쿠폰·등급등록" },
+        { id: "couponEdit", x: 1170, y: 462, label: "쿠폰·등급수정" },
+        { id: "couponDelete", x: 1170, y: 556, label: "쿠폰·등급삭제" },
+        { id: "logout", x: 1170, y: 744, label: "관리자로그아웃" }
+      ];
+      const edges = [
+        ["login", "member"], ["member", "memberView"], ["memberView", "memberDrop"], ["memberDrop", "memberRestore"],
+        ["login", "host"], ["host", "hostOk"], ["host", "hostReject"], ["hostReject", "hostRestore", true],
+        ["login", "inquiry"], ["inquiry", "inquiryList"], ["inquiryList", "chat"], ["chat", "inquiryDelete", true],
+        ["login", "booking"], ["booking", "bookingDone"], ["bookingDone", "stayDone"], ["stayDone", "bookingApprove"], ["bookingApprove", "bookingDeny"], ["bookingDeny", "bookingCancel"], ["bookingCancel", "bookingRestore", true],
+        ["login", "event"], ["event", "eventCreate"], ["event", "eventEdit"], ["event", "eventDelete", true],
+        ["login", "coupon"], ["coupon", "couponCreate"], ["coupon", "couponEdit"], ["coupon", "couponDelete", true],
+        ["login", "logout", true]
+      ];
+      function create(tag, attrs = {}, text) {
+        const el = document.createElementNS(NS, tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        if (text !== undefined) el.textContent = text;
+        return el;
+      }
+      function center(n) { return { x: n.x + BOX_W / 2, y: n.y + BOX_H / 2 }; }
+      function route(a, b) {
+        const s = center(a), e = center(b), dx = e.x - s.x, dy = e.y - s.y;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          const sx = dx > 0 ? a.x + BOX_W : a.x;
+          const ex = dx > 0 ? b.x : b.x + BOX_W;
+          const mx = (sx + ex) / 2;
+          return `M ${sx} ${s.y} L ${mx} ${s.y} L ${mx} ${e.y} L ${ex} ${e.y}`;
+        }
+        const sy = dy > 0 ? a.y + BOX_H : a.y;
+        const ey = dy > 0 ? b.y : b.y + BOX_H;
+        const my = (sy + ey) / 2;
+        return `M ${s.x} ${sy} L ${s.x} ${my} L ${e.x} ${my} L ${e.x} ${ey}`;
+      }
+      function draw() {
+        svg.setAttribute("viewBox", "0 0 1600 940");
+        const defs = create("defs");
+        const shadow = create("filter", { id: "shadow", x: "-20%", y: "-20%", width: "140%", height: "160%" });
+        shadow.appendChild(create("feDropShadow", { dx: "0", dy: "10", stdDeviation: "12", "flood-color": "#05080d", "flood-opacity": "0.32" }));
+        defs.appendChild(shadow);
+        const coreGlow = create("filter", { id: "coreGlow", x: "-30%", y: "-30%", width: "160%", height: "180%" });
+        coreGlow.appendChild(create("feDropShadow", { dx: "0", dy: "0", stdDeviation: "10", "flood-color": "#f5c96b", "flood-opacity": "0.14" }));
+        defs.appendChild(coreGlow);
+        const marker = create("marker", { id: "arrow", viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "8", markerHeight: "8", orient: "auto-start-reverse" });
+        marker.appendChild(create("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: section.color }));
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+        svg.appendChild(create("rect", { x: section.x, y: section.y, width: section.w, height: section.h, rx: "26", fill: section.bg, stroke: section.color, "stroke-opacity": "0.2", "stroke-width": "1.8" }));
+        svg.appendChild(create("rect", { x: section.x + 16, y: section.y + 16, width: section.w - 32, height: 72, rx: "18", fill: section.titleBg, stroke: section.color, "stroke-opacity": "0.12" }));
+        svg.appendChild(create("text", { x: section.x + 28, y: section.y + 50, fill: "#f3f7fb", "font-size": "28", "font-weight": "800", "letter-spacing": "-0.03em" }, section.title));
+        svg.appendChild(create("text", { x: section.x + 28, y: section.y + 76, fill: "#9fb0c2", "font-size": "12", "font-weight": "700" }, section.subtitle));
+        const nodeMap = Object.fromEntries(nodes.map((n) => [n.id, n]));
+        edges.forEach(([from, to, dashed]) => {
+          svg.appendChild(create("path", {
+            d: route(nodeMap[from], nodeMap[to]),
+            fill: "none",
+            stroke: section.color,
+            "stroke-width": dashed ? "1.8" : "2.1",
+            "stroke-dasharray": dashed ? "6 8" : "0",
+            opacity: dashed ? "0.45" : "0.72",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
+            "marker-end": "url(#arrow)"
+          }));
+        });
+        nodes.forEach((n) => {
+          svg.appendChild(create("rect", {
+            x: n.x, y: n.y, width: BOX_W, height: BOX_H, rx: "18",
+            fill: n.core ? section.coreFill : section.nodeFill,
+            stroke: n.core ? "#f5c96b" : section.color,
+            "stroke-width": n.core ? "2" : "1.2",
+            filter: n.core ? "url(#coreGlow)" : "url(#shadow)"
+          }));
+          svg.appendChild(create("text", { x: n.x + BOX_W / 2, y: n.y + 40, fill: "#edf3f9", "font-size": n.core ? "16" : "14", "font-weight": "800", "text-anchor": "middle" }, n.label));
+        });
+      }
+      draw();
+    </script>
+  </body>
+</html>

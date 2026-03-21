@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { INQUIRY_TYPES, INQUIRY_TYPE_LABELS } from '../../constants/inquiryTypes';
 import { ROLES } from '../../constants/roles';
 import { createInquiry } from '../../api/inquiry';
+import { MAX_WIDTH } from '../../styles/tokens';
 
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -93,12 +94,36 @@ export default function InquiryCreatePage() {
   const defaultType = params.get('type') || INQUIRY_TYPES.COMMON_TO_ADMIN;
   const availableTypes = user?.role === ROLES.SELLER
     ? [INQUIRY_TYPES.SELLER_TO_ADMIN, INQUIRY_TYPES.COMMON_TO_ADMIN]
-    : [INQUIRY_TYPES.USER_TO_SELLER, INQUIRY_TYPES.COMMON_TO_ADMIN];
+    : user?.role === ROLES.ADMIN
+      ? [INQUIRY_TYPES.COMMON_TO_ADMIN]
+      : [INQUIRY_TYPES.USER_TO_SELLER, INQUIRY_TYPES.COMMON_TO_ADMIN];
 
   const [type, setType] = useState(defaultType);
   const safeType = availableTypes.includes(type) ? type : availableTypes[0];
-  const roleLabel = user?.role === ROLES.SELLER ? '숙소 등록자 문의' : '여행객 문의';
+  const roleLabel = user?.role === ROLES.SELLER
+    ? '숙소 등록자 문의'
+    : user?.role === ROLES.ADMIN
+      ? '관리자 문의'
+      : '여행객 문의';
   const guide = GUIDE_BY_TYPE[safeType] || GUIDE_BY_TYPE[INQUIRY_TYPES.COMMON_TO_ADMIN];
+  const inquiryListPath = user?.role === ROLES.SELLER
+    ? '/seller/inquiries'
+    : user?.role === ROLES.ADMIN
+      ? '/admin/inquiries'
+      : '/my/inquiries';
+  const inquiryListLabel = user?.role === ROLES.SELLER
+    ? '판매자 문의 관리'
+    : user?.role === ROLES.ADMIN
+      ? '관리자 문의 목록'
+      : '마이페이지 → 내 문의';
+  const receiverLabel = safeType === INQUIRY_TYPES.USER_TO_SELLER
+    ? '판매자'
+    : '운영팀';
+  const supportTone = safeType === INQUIRY_TYPES.USER_TO_SELLER
+    ? '숙소 이용 전 확인이 필요한 내용을 먼저 정리해두면 답변이 빨라집니다.'
+    : safeType === INQUIRY_TYPES.SELLER_TO_ADMIN
+      ? '승인, 정산, 운영 정책처럼 확인 주체가 명확한 내용 위주로 남기면 처리 흐름이 깔끔합니다.'
+      : '오류 화면, 발생 시각, 사용 환경을 같이 적으면 운영팀이 원인을 더 빠르게 좁힐 수 있습니다.';
 
   const [activeTab, setActiveTab] = useState(TAB.CHAT);
   const [chatInput, setChatInput] = useState('');
@@ -212,12 +237,44 @@ export default function InquiryCreatePage() {
   };
 
   if (done) return (
-    <div style={styles.wrap}>
-      <div style={styles.box}>
-        <div style={{ fontSize: '40px', marginBottom: '12px' }}>📩</div>
-        <h2>문의가 접수되었습니다</h2>
-        <p style={{ color: '#6b7280' }}>답변은 마이페이지 → 내 문의에서 확인할 수 있습니다.</p>
-        <button onClick={() => navigate('/my/inquiries')} style={styles.submitBtn}>내 문의 보기</button>
+    <div style={styles.doneWrap}>
+      <div style={styles.doneInner}>
+        <section style={styles.doneHero}>
+          <div style={styles.doneHeroMain}>
+            <div style={styles.doneIcon}>📩</div>
+            <p style={styles.doneEyebrow}>INQUIRY COMPLETE</p>
+            <h2 style={styles.doneTitle}>문의가 접수되었습니다</h2>
+            <p style={styles.doneDesc}>답변은 {inquiryListLabel}에서 확인할 수 있습니다.</p>
+            <div style={styles.doneActionRow}>
+              <button onClick={() => navigate(inquiryListPath)} style={styles.submitBtn}>문의 내역 보기</button>
+              <button type="button" onClick={() => navigate('/support')} style={styles.doneGhostBtn}>문의센터로 이동</button>
+            </div>
+          </div>
+          <aside style={styles.doneHeroSide}>
+            <div style={styles.doneSummaryCard}>
+              <p style={styles.doneSummaryLabel}>접수 상태</p>
+              <p style={styles.doneSummaryValue}>접수 완료</p>
+              <p style={styles.doneSummaryText}>현재 문의 유형: {INQUIRY_TYPE_LABELS[safeType]}</p>
+            </div>
+          </aside>
+        </section>
+
+        <section style={styles.doneGrid}>
+          <div style={styles.doneInfoCard}>
+            <p style={styles.doneCardTitle}>다음 안내</p>
+            <ul style={styles.doneList}>
+              <li>답변이 등록되면 문의 내역에서 상태와 내용을 확인할 수 있습니다.</li>
+              <li>필요하면 같은 카테고리로 추가 문의를 이어서 남길 수 있습니다.</li>
+            </ul>
+          </div>
+          <div style={styles.doneInfoCard}>
+            <p style={styles.doneCardTitle}>안내</p>
+            <ul style={styles.doneList}>
+              <li>첨부한 이미지와 작성한 내용은 문의 확인에 함께 활용됩니다.</li>
+              <li>문의 유형에 따라 판매자 또는 운영팀이 순차적으로 답변합니다.</li>
+            </ul>
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -227,10 +284,13 @@ export default function InquiryCreatePage() {
       <style>{`
         @media (max-width: 920px) {
           .tz-inquiry-layout { grid-template-columns: 1fr !important; }
+          .tz-inquiry-side { position: static !important; top: auto !important; }
+          .tz-inquiry-main { order: 1; }
+          .tz-inquiry-side { order: 2; }
         }
       `}</style>
       <div style={styles.box} className="tz-inquiry-layout">
-        <section>
+        <section className="tz-inquiry-main">
           <div style={styles.headerRow}>
             <div>
               <p style={styles.badge}>{roleLabel}</p>
@@ -373,22 +433,73 @@ export default function InquiryCreatePage() {
             </form>
           )}
         </section>
+
+        <aside style={styles.sideColumn} className="tz-inquiry-side">
+          <div style={styles.sideCard}>
+            <p style={styles.sideEyebrow}>INQUIRY GUIDE</p>
+            <h3 style={styles.sideTitle}>{INQUIRY_TYPE_LABELS[safeType]}</h3>
+            <p style={styles.sideDesc}>{supportTone}</p>
+            <div style={styles.sideMetaList}>
+              <div style={styles.sideMetaItem}>
+                <span style={styles.sideMetaLabel}>전달 대상</span>
+                <strong style={styles.sideMetaValue}>{receiverLabel}</strong>
+              </div>
+              <div style={styles.sideMetaItem}>
+                <span style={styles.sideMetaLabel}>작성 방식</span>
+                <strong style={styles.sideMetaValue}>{activeTab === TAB.CHAT ? '채팅 정리 후 접수' : '상세 문의 바로 작성'}</strong>
+              </div>
+              <div style={styles.sideMetaItem}>
+                <span style={styles.sideMetaLabel}>첨부 상태</span>
+                <strong style={styles.sideMetaValue}>{attachments.length > 0 ? `${attachments.length}개 첨부됨` : '첨부 없음'}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div style={styles.sideSoftCard}>
+            <p style={styles.sideSoftTitle}>작성 팁</p>
+            <ul style={styles.sideList}>
+              <li>언제 발생했는지 먼저 적으면 답변 방향이 빨라집니다.</li>
+              <li>예약일, 숙소명, 오류 화면처럼 확인 기준이 되는 정보를 함께 적어주세요.</li>
+              <li>채팅에서 먼저 정리한 뒤 상세 문의로 넘기면 제목과 본문을 잡기 쉽습니다.</li>
+            </ul>
+          </div>
+        </aside>
       </div>
     </div>
   );
 }
 
 const styles = {
+  doneWrap: { minHeight: 'calc(100vh - 160px)', padding: '40px 24px 64px', background: 'linear-gradient(180deg, #FBF8F6 0%, #F3EFEC 100%)' },
+  doneInner: { maxWidth: MAX_WIDTH, margin: '0 auto', display: 'grid', gap: '18px' },
+  doneHero: { display: 'grid', gridTemplateColumns: 'minmax(0, 1.45fr) minmax(280px, 0.72fr)', gap: '18px', alignItems: 'stretch' },
+  doneHeroMain: { padding: '34px', borderRadius: '30px', background: 'linear-gradient(135deg, #FFF7F1 0%, #FFFFFF 52%, #F7F7FF 100%)', border: '1px solid #EEE3DD', boxShadow: '0 18px 42px rgba(15,23,42,0.06)' },
+  doneHeroSide: { display: 'flex' },
+  doneIcon: { fontSize: '42px', marginBottom: '12px' },
+  doneEyebrow: { margin: '0 0 10px', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', color: '#D45759' },
+  doneTitle: { margin: '0 0 10px', fontSize: '38px', lineHeight: 1.08, color: '#1F1F1F', fontWeight: 800 },
+  doneDesc: { margin: '0 0 22px', fontSize: '15px', lineHeight: 1.8, color: '#595959', maxWidth: '760px' },
+  doneActionRow: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
+  doneGhostBtn: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 16px', background: '#fff', color: '#4B5563', border: '1px solid #E5E7EB', borderRadius: '999px', fontWeight: 700, cursor: 'pointer', fontSize: '14px', textDecoration: 'none' },
+  doneSummaryCard: { width: '100%', padding: '28px', borderRadius: '30px', background: 'linear-gradient(145deg, #FFF2EF 0%, #F6E9E4 58%, #F4ECEA 100%)', border: '1px solid #E9DAD3', boxShadow: '0 18px 40px rgba(120,74,56,0.10)' },
+  doneSummaryLabel: { margin: '0 0 10px', fontSize: '12px', color: '#C75B5D', fontWeight: 800, letterSpacing: '0.12em' },
+  doneSummaryValue: { margin: '0 0 10px', fontSize: '30px', color: '#1F1F1F', fontWeight: 800 },
+  doneSummaryText: { margin: 0, fontSize: '14px', color: '#9B5C37', fontWeight: 700 },
+  doneGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' },
+  doneInfoCard: { padding: '22px', borderRadius: '24px', background: '#FFFCFB', border: '1px solid #EEE4DE' },
+  doneCardTitle: { margin: '0 0 12px', fontSize: '16px', color: '#222', fontWeight: 800 },
+  doneList: { margin: 0, paddingLeft: '18px', display: 'grid', gap: '8px', fontSize: '14px', color: '#666', lineHeight: 1.7 },
   wrap: { display: 'flex', justifyContent: 'center', padding: '42px 24px' },
   box: {
     width: '100%',
-    maxWidth: '1040px',
+    maxWidth: '1180px',
     background: '#fff',
     border: '1px solid #ece6e6',
     borderRadius: '18px',
     padding: '28px',
     display: 'grid',
-    gridTemplateColumns: 'minmax(0, 1fr)',
+    gridTemplateColumns: 'minmax(0, 1fr) 320px',
+    alignItems: 'start',
     gap: '24px',
     boxShadow: '0 14px 28px rgba(0,0,0,0.06)',
   },
@@ -607,5 +718,87 @@ const styles = {
     cursor: 'pointer',
     marginTop: '20px',
     fontSize: '15px',
+  },
+  sideColumn: {
+    position: 'sticky',
+    top: '96px',
+    display: 'grid',
+    gap: '14px',
+    alignSelf: 'start',
+  },
+  sideCard: {
+    padding: '22px',
+    borderRadius: '24px',
+    background: 'linear-gradient(160deg, #FFF5F2 0%, #FFFDFB 54%, #F7F2EF 100%)',
+    border: '1px solid #EEDFD8',
+    boxShadow: '0 16px 36px rgba(104, 65, 48, 0.08)',
+    display: 'grid',
+    gap: '14px',
+  },
+  sideEyebrow: {
+    margin: 0,
+    fontSize: '11px',
+    fontWeight: 800,
+    letterSpacing: '0.14em',
+    color: '#D45759',
+  },
+  sideTitle: {
+    margin: 0,
+    fontSize: '24px',
+    lineHeight: 1.2,
+    color: '#1F1F1F',
+    fontWeight: 800,
+  },
+  sideDesc: {
+    margin: 0,
+    fontSize: '14px',
+    lineHeight: 1.75,
+    color: '#6B5B54',
+  },
+  sideMetaList: {
+    display: 'grid',
+    gap: '10px',
+  },
+  sideMetaItem: {
+    display: 'grid',
+    gap: '4px',
+    padding: '12px 14px',
+    borderRadius: '16px',
+    background: 'rgba(255,255,255,0.82)',
+    border: '1px solid #F0E3DD',
+  },
+  sideMetaLabel: {
+    fontSize: '11px',
+    fontWeight: 800,
+    letterSpacing: '0.12em',
+    color: '#C46A5C',
+  },
+  sideMetaValue: {
+    fontSize: '14px',
+    color: '#272727',
+    fontWeight: 700,
+  },
+  sideSoftCard: {
+    padding: '20px',
+    borderRadius: '22px',
+    background: '#FFFCFB',
+    border: '1px solid #EFE5DF',
+    display: 'grid',
+    gap: '10px',
+  },
+  sideSoftTitle: {
+    margin: 0,
+    fontSize: '15px',
+    fontWeight: 800,
+    color: '#222',
+  },
+  sideList: {
+    margin: 0,
+    paddingLeft: '18px',
+    display: 'grid',
+    gap: '8px',
+    fontSize: '13px',
+    color: '#5F5F5F',
+    lineHeight: 1.7,
   },
 };

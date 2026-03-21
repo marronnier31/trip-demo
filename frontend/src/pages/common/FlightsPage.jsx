@@ -23,7 +23,7 @@ export default function FlightsPage() {
         <div style={s.inner}>
           <p style={s.eyebrow}>FLIGHT BOOKING</p>
           <h1 style={s.title}>항공</h1>
-          <p style={s.desc}>왕복 항공 중심 결과형 화면입니다. 지금은 프론트 mock으로 먼저 준비했고, 백엔드가 붙으면 실시간 운임과 재고를 연결할 수 있습니다.</p>
+          <p style={s.desc}>왕복 항공권을 중심으로 일정과 좌석 조건을 비교할 수 있는 결과형 페이지입니다.</p>
           <div style={s.actions}>
             <Link to="/flight-stays" style={s.primaryBtn}>항공+숙소 보기</Link>
             <Link to="/support" style={s.secondaryBtn}>운영 문의</Link>

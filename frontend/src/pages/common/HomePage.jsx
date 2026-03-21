@@ -5,41 +5,17 @@ import SearchBar from '../../components/lodging/SearchBar';
 import { getLodgings } from '../../api/lodging';
 import { EVENT_ITEMS } from '../../mock/eventData';
 import { PROMOTION_ITEMS } from '../../mock/promotionData';
-import { C, MAX_WIDTH } from '../../styles/tokens';
+import { C } from '../../styles/tokens';
 
 const quickThemes = [
-  { label: '국내숙소', emoji: '🏨' },
-  { label: '해외숙소', emoji: '✈️' },
-  { label: '패키지 여행', emoji: '🎁' },
-  { label: '항공', emoji: '🛫' },
-  { label: '항공+숙소', emoji: '🛄' },
-  { label: '레저·티켓', emoji: '🎫' },
-  { label: '렌터카', emoji: '🚗' },
-  { label: '공간대여', emoji: '🏢' },
-];
-
-const serviceHighlights = [
-  {
-    title: '지도 기반 숙소 탐색',
-    desc: '숙소 위치를 지도에서 바로 보고 동선 중심으로 예약할 수 있어요.',
-    icon: '🗺️',
-    accent: '#4F7DF3',
-    metric: '위치 확인 1초',
-  },
-  {
-    title: '판매자 승인 체계',
-    desc: '사업자 등록증 검증 후 숙소 등록이 가능해 신뢰를 높입니다.',
-    icon: '✅',
-    accent: '#1E9E72',
-    metric: '검증 단계 분리',
-  },
-  {
-    title: '문의 유형 분리',
-    desc: '운영 문의와 시스템 문의를 나눠 응답 속도를 개선합니다.',
-    icon: '💬',
-    accent: '#D36438',
-    metric: '처리 라우팅 최적화',
-  },
+  { label: '국내숙소', emoji: '🏨', to: '/lodgings' },
+  { label: '해외숙소', emoji: '✈️', to: '/overseas' },
+  { label: '패키지 여행', emoji: '🎁', to: '/packages' },
+  { label: '항공', emoji: '🛫', to: '/flights' },
+  { label: '항공+숙소', emoji: '🛄', to: '/flight-stays' },
+  { label: '레저·티켓', emoji: '🎫', to: '/leisure' },
+  { label: '렌터카', emoji: '🚗', to: '/cars' },
+  { label: '공간대여', emoji: '🏢', to: '/spaces' },
 ];
 
 const regionNamePools = {
@@ -89,6 +65,12 @@ function buildImageVariant(url, seedSuffix) {
 
   const hasQuery = url.includes('?');
   return `${url}${hasQuery ? '&' : '?'}v=${encodeURIComponent(safeSeed)}`;
+}
+
+function handleCardKeyDown(event, onActivate) {
+  if (event.key !== 'Enter' && event.key !== ' ') return;
+  event.preventDefault();
+  onActivate();
 }
 
 function PromoEventCard({ banner }) {
@@ -276,6 +258,11 @@ export default function HomePage() {
         .tz-promo-image { transition: transform 0.3s ease; }
         .tz-theme-orb-wrap:hover .tz-theme-orb { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0,0,0,0.12); border-color: ${C.primary}; }
         .tz-theme-orb { transition: all 0.2s ease; }
+        .tz-focus-card:focus-visible {
+          outline: 3px solid ${C.primary};
+          outline-offset: 4px;
+          border-radius: 24px;
+        }
         @keyframes tz-marquee {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
@@ -304,7 +291,7 @@ export default function HomePage() {
             <div style={s.themeWrap}>
               <div style={s.themeTrack} className="tz-theme-track">
                 {themeLoop.map((theme, idx) => (
-                  <button key={`${theme.label}-${idx}`} style={s.themeChip} className="tz-theme-orb-wrap" onClick={() => navigate('/lodgings')}>
+                  <button key={`${theme.label}-${idx}`} style={s.themeChip} className="tz-theme-orb-wrap" onClick={() => navigate(theme.to)}>
                     <span style={s.themeOrb} className="tz-theme-orb"><span style={s.themeOrbEmoji}>{theme.emoji}</span></span>
                     <span style={s.themeLabel}>{theme.label}</span>
                   </button>
@@ -333,7 +320,15 @@ export default function HomePage() {
           </div>
           <div style={s.eventGrid}>
             {eventCards.map((item) => (
-              <article key={item.slug} style={s.eventCard} className="tz-lift-soft" onClick={() => navigate(`/events/${item.slug}`)}>
+              <article
+                key={item.slug}
+                style={s.eventCard}
+                className="tz-lift-soft tz-focus-card"
+                onClick={() => navigate(`/events/${item.slug}`)}
+                onKeyDown={(event) => handleCardKeyDown(event, () => navigate(`/events/${item.slug}`))}
+                role="link"
+                tabIndex={0}
+              >
                 <div style={{ ...s.eventVisual, background: item.gradient }}>
                   <div>
                     <p style={s.eventLead}>{item.lead}</p>
@@ -377,7 +372,15 @@ export default function HomePage() {
           </div>
           <div style={s.newGrid}>
             {newOpenings.map((lodging) => (
-              <article key={lodging.cardKey} style={s.newCard} className="tz-lift-soft" onClick={() => navigate(`/lodgings/${lodging.lodgingId}`)}>
+              <article
+                key={lodging.cardKey}
+                style={s.newCard}
+                className="tz-lift-soft tz-focus-card"
+                onClick={() => navigate(`/lodgings/${lodging.lodgingId}`)}
+                onKeyDown={(event) => handleCardKeyDown(event, () => navigate(`/lodgings/${lodging.lodgingId}`))}
+                role="link"
+                tabIndex={0}
+              >
                 <img src={lodging.thumbnailUrl} alt={lodging.name} style={s.newCardImg} />
                 <div style={s.newCardBody}>
                   <p style={s.newCardRegion}>{lodging.region}</p>
@@ -390,43 +393,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section style={s.sectionCompact}>
-        <div style={s.inner}>
-          <div style={s.sectionHead}>
-            <h2 style={s.sectionTitle}>TripZone이 다른 이유</h2>
-          </div>
-          <div style={s.highlightGrid}>
-            {serviceHighlights.map((item) => (
-              <article key={item.title} style={s.highlightCard} className="tz-lift-soft">
-                <div style={s.highlightTopRow}>
-                  <span style={{ ...s.highlightIcon, color: item.accent }}>{item.icon}</span>
-                  <span style={{ ...s.highlightTag, color: item.accent, borderColor: `${item.accent}44` }}>핵심 기능</span>
-                </div>
-                <h3 style={s.highlightTitle}>{item.title}</h3>
-                <p style={s.highlightDesc}>{item.desc}</p>
-                <div style={s.highlightMetricRow}>
-                  <span style={{ ...s.highlightMetricDot, background: item.accent }} />
-                  <span style={s.highlightMetricText}>{item.metric}</span>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section style={s.ctaSection}>
-        <div style={s.ctaInner}>
-          <div>
-            <p style={s.ctaEyebrow}>PARTNER PROGRAM</p>
-            <h2 style={s.ctaTitle}>판매자로 등록해 숙소를 운영해보세요.</h2>
-            <p style={s.ctaDesc}>사업자등록증 제출 후 관리자 승인으로 안전한 판매자 파트너십을 지원합니다.</p>
-          </div>
-          <div style={s.ctaActions}>
-            <button style={s.ctaPrimary} onClick={() => navigate('/signup')}>판매자 가입하기</button>
-            <button style={s.ctaGhost} onClick={() => navigate('/inquiry/create')}>운영 문의하기</button>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
@@ -746,45 +712,6 @@ const s = {
     fontWeight: 800,
     letterSpacing: '-0.01em',
   },
-  highlightGrid: {
-    marginTop: '10px',
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: '14px',
-  },
-  highlightCard: {
-    background: 'linear-gradient(160deg, #FFFFFF 0%, #FCFAF8 100%)',
-    border: '1px solid #EBE4E4',
-    borderRadius: '16px',
-    padding: '18px',
-    boxShadow: '0 10px 22px rgba(0,0,0,0.06)',
-  },
-  highlightTopRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
-  highlightIcon: {
-    width: '34px',
-    height: '34px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '10px',
-    background: '#FFFFFF',
-    border: '1px solid #E7E2E2',
-    fontSize: '18px',
-  },
-  highlightTag: {
-    fontSize: '10px',
-    fontWeight: 700,
-    border: '1px solid',
-    borderRadius: '999px',
-    padding: '4px 8px',
-    background: '#FFFFFF',
-    letterSpacing: '0.04em',
-  },
-  highlightTitle: { margin: '0 0 8px', fontSize: '18px', letterSpacing: '-0.01em' },
-  highlightDesc: { margin: 0, color: '#5D5D5D', lineHeight: 1.62, fontSize: '13px' },
-  highlightMetricRow: { marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '7px' },
-  highlightMetricDot: { width: '8px', height: '8px', borderRadius: '999px' },
-  highlightMetricText: { fontSize: '12px', fontWeight: 700, color: '#4A4A4A' },
   newGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
@@ -802,43 +729,4 @@ const s = {
   newCardRegion: { margin: '0 0 4px', fontSize: '11px', color: '#7A7A7A' },
   newCardName: { margin: '0 0 6px', fontSize: '15px', fontWeight: 700, color: '#2F2F2F' },
   newCardPrice: { margin: 0, fontSize: '13px', color: '#4B4B4B', fontWeight: 700 },
-  ctaSection: {
-    marginTop: '8px',
-    padding: '52px 30px 60px',
-    background: 'linear-gradient(140deg, #1F1F1F 0%, #2B2B2B 100%)',
-    color: '#fff',
-  },
-  ctaInner: {
-    maxWidth: MAX_WIDTH,
-    margin: '0 auto',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: '20px',
-    flexWrap: 'wrap',
-  },
-  ctaEyebrow: { margin: '0 0 8px', fontSize: '11px', letterSpacing: '0.12em', color: '#FFCACA', fontWeight: 700 },
-  ctaTitle: { margin: '0 0 10px', fontSize: 'clamp(24px, 2.7vw, 36px)', lineHeight: 1.18, letterSpacing: '-0.02em' },
-  ctaDesc: { margin: 0, color: '#D3D3D3', fontSize: '14px', lineHeight: 1.6 },
-  ctaActions: { display: 'flex', gap: '10px', flexWrap: 'wrap' },
-  ctaPrimary: {
-    border: 'none',
-    borderRadius: '999px',
-    padding: '13px 21px',
-    background: 'linear-gradient(135deg, #F05A5C 0%, #E8484A 100%)',
-    color: '#fff',
-    fontWeight: 800,
-    fontSize: '14px',
-    cursor: 'pointer',
-  },
-  ctaGhost: {
-    border: '1px solid #676767',
-    borderRadius: '999px',
-    padding: '13px 21px',
-    background: 'transparent',
-    color: '#fff',
-    fontWeight: 700,
-    fontSize: '14px',
-    cursor: 'pointer',
-  },
 };
